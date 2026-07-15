@@ -1,5 +1,5 @@
 {
-    "collector_timestamp": "2026-07-15 13:35:16",
+    "collector_timestamp": "2026-07-15 15:08:04",
     "devices": {
         "ASG_01": {
             "device_id": "ASG_01",
@@ -13,12 +13,12 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
-            "last_mid": "0061",
-            "last_result_pc_timestamp": "2026-07-15 13:35:16",
+            "last_heartbeat": "2026-07-15 15:08:03",
+            "last_mid": "9999",
+            "last_result_pc_timestamp": "",
             "last_error": "",
-            "total_messages": 4,
-            "total_results": 1
+            "total_messages": 5,
+            "total_results": 0
         },
         "ASG_02": {
             "device_id": "ASG_02",
@@ -32,12 +32,12 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
-            "last_mid": "9999",
-            "last_result_pc_timestamp": "",
+            "last_heartbeat": "2026-07-15 15:08:03",
+            "last_mid": "0061",
+            "last_result_pc_timestamp": "2026-07-15 15:08:02",
             "last_error": "",
-            "total_messages": 3,
-            "total_results": 0
+            "total_messages": 8,
+            "total_results": 3
         },
         "ASG_04": {
             "device_id": "ASG_04",
@@ -51,12 +51,12 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_heartbeat": "2026-07-15 15:08:04",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "",
+            "last_result_pc_timestamp": "2026-07-15 15:07:38",
             "last_error": "",
-            "total_messages": 3,
-            "total_results": 0
+            "total_messages": 6,
+            "total_results": 1
         },
         "ASG_05": {
             "device_id": "ASG_05",
@@ -70,11 +70,11 @@
             "station_type": "exclusive",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_heartbeat": "2026-07-15 15:08:03",
             "last_mid": "9999",
             "last_result_pc_timestamp": "",
             "last_error": "",
-            "total_messages": 3,
+            "total_messages": 5,
             "total_results": 0
         },
         "ASG_06": {
@@ -89,12 +89,12 @@
             "station_type": "exclusive",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
-            "last_mid": "9999",
-            "last_result_pc_timestamp": "",
+            "last_heartbeat": "2026-07-15 15:08:03",
+            "last_mid": "0061",
+            "last_result_pc_timestamp": "2026-07-15 15:08:03",
             "last_error": "",
-            "total_messages": 3,
-            "total_results": 0
+            "total_messages": 6,
+            "total_results": 1
         },
         "ASG_07": {
             "device_id": "ASG_07",
@@ -108,12 +108,12 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_heartbeat": "2026-07-15 15:08:03",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "",
+            "last_result_pc_timestamp": "2026-07-15 15:07:58",
             "last_error": "",
-            "total_messages": 3,
-            "total_results": 0
+            "total_messages": 6,
+            "total_results": 1
         }
     }
 }

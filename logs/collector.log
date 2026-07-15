@@ -867,3 +867,24 @@ PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09
 2026-07-15 13:35:16,857 | INFO | ASG_05 | Worker ASG_05 detenido
 2026-07-15 13:35:16,860 | INFO | ASG_04 | Worker ASG_04 detenido
 2026-07-15 13:35:16,871 | INFO | ASG_06 | Worker ASG_06 detenido
+2026-07-15 15:07:28,838 | INFO | writer | Writer iniciado
+2026-07-15 15:07:28,840 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-15 15:07:28,840 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-15 15:07:28,841 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-15 15:07:28,842 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-15 15:07:28,843 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-15 15:07:28,844 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-15 15:07:28,922 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 15:07:28,934 | INFO | ASG_01 | ASG_01 conectado
+2026-07-15 15:07:28,947 | INFO | ASG_04 | ASG_04 conectado
+2026-07-15 15:07:28,961 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 15:07:28,974 | INFO | ASG_07 | ASG_07 conectado
+2026-07-15 15:07:28,989 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 15:08:03,007 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-15 15:08:03,040 | INFO | ASG_05 | Worker ASG_05 detenido
+2026-07-15 15:08:03,107 | INFO | writer | Writer detenido
+2026-07-15 15:08:03,132 | INFO | ASG_06 | Worker ASG_06 detenido
+2026-07-15 15:08:03,221 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-15 15:08:03,696 | INFO | ASG_07 | Worker ASG_07 detenido
+2026-07-15 15:08:03,834 | INFO | ASG_01 | Worker ASG_01 detenido
+2026-07-15 15:08:04,017 | INFO | ASG_04 | Worker ASG_04 detenido
