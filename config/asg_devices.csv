@@ -1,0 +1,11 @@
+enabled,device_id,station,module_name,ip,port,models,process,station_type,torque_unit
+1,ASG_01,Heatsink Assy & Screwing,24001-09-05,10.132.160.190,4545,T1XX-1|T1XX-2,HDS302,shared,cN·m
+1,ASG_02,Heatsink Assy to Lower Case,24001-05-04,10.132.160.184,4545,T1XX-1|T1XX-2,HUD02,shared,cN·m
+1,ASG_03,Leaf Spring,25002-06-04,10.132.160.209,4545,T1XX-2,HUD13,exclusive,cN·m
+1,ASG_04,Rear Cover / PCB Cover,24001-07-04,10.132.160.175,4545,T1XX-1|T1XX-2,HUD05,shared,cN·m
+1,ASG_05,Flat Mirror Assy,24001-06-04,10.132.160.181,4545,T1XX-1,HUD06,exclusive,cN·m
+1,ASG_06,Sunlight Sensor,24001-10-04,10.132.160.178,4545,T1XX-1,HDS503,exclusive,cN·m
+1,ASG_07,Upper Case To Lower Case,24001-08-04,10.132.160.187,4545,T1XX-1|T1XX-2,HUD07,shared,cN·m
+1,ASG_08,Lever to concave Mirror,25002-07-04,10.132.160.212,4545,T1XX-2,HDS111,exclusive,cN·m
+1,ASG_09,Lens Holder Pre-assy,25002-01-05,10.132.160.205,4545,T1XX-2,HDS311,exclusive,cN·m
+1,ASG_10,Concave Mirror Assy To Lower Case,25002-09-04,10.132.160.217,4545,T1XX-2,HUD01,exclusive,cN·m
