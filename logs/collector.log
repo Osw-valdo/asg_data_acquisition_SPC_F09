@@ -1,0 +1,238 @@
+2026-07-14 23:55:48,314 | INFO | writer | Writer iniciado
+2026-07-14 23:55:48,314 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-14 23:55:48,315 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-14 23:55:48,316 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-14 23:55:48,317 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-14 23:55:48,318 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-14 23:55:48,319 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-14 23:55:48,321 | ERROR | ASG_05 | ASG_05 error: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 260, in device_worker
+    update_device_status(
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 133, in update_device_status
+    write_status_file()
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 150, in write_status_file
+    temp_file.replace(STATUS_FILE)
+  File "/usr/lib/python3.12/pathlib.py", line 1378, in replace
+    os.replace(self, target)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+2026-07-14 23:55:48,323 | ERROR | ASG_04 | ASG_04 error: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 260, in device_worker
+    update_device_status(
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 133, in update_device_status
+    write_status_file()
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 150, in write_status_file
+    temp_file.replace(STATUS_FILE)
+  File "/usr/lib/python3.12/pathlib.py", line 1378, in replace
+    os.replace(self, target)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+2026-07-14 23:55:53,330 | ERROR | ASG_01 | ASG_01 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:55:53,332 | ERROR | ASG_07 | ASG_07 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:55:53,333 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:55:53,333 | ERROR | ASG_06 | ASG_06 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:55:58,338 | ERROR | ASG_05 | ASG_05 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:55:58,355 | ERROR | ASG_02 | ASG_02 error: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 260, in device_worker
+    update_device_status(
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 133, in update_device_status
+    write_status_file()
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 150, in write_status_file
+    temp_file.replace(STATUS_FILE)
+  File "/usr/lib/python3.12/pathlib.py", line 1378, in replace
+    os.replace(self, target)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+2026-07-14 23:56:03,363 | ERROR | ASG_01 | ASG_01 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:08,349 | ERROR | ASG_05 | ASG_05 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:08,364 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:08,369 | ERROR | ASG_01 | ASG_01 error: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 260, in device_worker
+    update_device_status(
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 133, in update_device_status
+    write_status_file()
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 150, in write_status_file
+    temp_file.replace(STATUS_FILE)
+  File "/usr/lib/python3.12/pathlib.py", line 1378, in replace
+    os.replace(self, target)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'
+2026-07-14 23:56:18,359 | ERROR | ASG_05 | ASG_05 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:18,374 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:18,378 | ERROR | ASG_01 | ASG_01 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:28,204 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-14 23:56:28,324 | INFO | writer | Writer detenido
+2026-07-14 23:56:28,370 | ERROR | ASG_05 | ASG_05 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:28,374 | INFO | ASG_05 | Worker ASG_05 detenido
+2026-07-14 23:56:28,385 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:28,389 | ERROR | ASG_01 | ASG_01 error: timed out
+Traceback (most recent call last):
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/collector_multi_ip.py", line 268, in device_worker
+    sock = connect_asg(ip, port)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/src/asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+2026-07-14 23:56:28,391 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-14 23:56:28,394 | INFO | ASG_01 | Worker ASG_01 detenido
