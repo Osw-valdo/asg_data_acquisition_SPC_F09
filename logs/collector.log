@@ -236,3 +236,634 @@ Traceback (most recent call last):
 TimeoutError: timed out
 2026-07-14 23:56:28,391 | INFO | ASG_02 | Worker ASG_02 detenido
 2026-07-14 23:56:28,394 | INFO | ASG_01 | Worker ASG_01 detenido
+2026-07-15 12:01:15,761 | INFO | writer | Writer iniciado
+2026-07-15 12:01:15,762 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-15 12:01:15,763 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-15 12:01:15,764 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-15 12:01:15,764 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-15 12:01:15,765 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-15 12:01:15,766 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-15 12:01:15,801 | INFO | ASG_01 | ASG_01 conectado
+2026-07-15 12:01:15,806 | INFO | ASG_04 | ASG_04 conectado
+2026-07-15 12:01:15,809 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 12:01:15,817 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:01:15,863 | INFO | ASG_07 | ASG_07 conectado
+2026-07-15 12:01:15,865 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 12:01:16,320 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:16,326 | ERROR | ASG_04 | ASG_04 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:16,381 | ERROR | ASG_07 | ASG_07 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:21,385 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 278, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        last_error="",
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:21,389 | INFO | ASG_04 | ASG_04 conectado
+2026-07-15 12:01:21,414 | INFO | ASG_07 | ASG_07 conectado
+2026-07-15 12:01:21,901 | ERROR | ASG_04 | ASG_04 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:26,414 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 12:01:26,915 | ERROR | ASG_04 | ASG_04 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 268, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        last_error="",
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:26,930 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:31,977 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 12:01:32,491 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:37,520 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 12:01:38,027 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:43,081 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 12:01:54,158 | ERROR | ASG_05 | ASG_05 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:01:57,226 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:02:02,281 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:02:10,748 | ERROR | ASG_07 | ASG_07 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:04:09,720 | ERROR | ASG_01 | ASG_01 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:10:54,340 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:10:59,467 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 12:20:10,068 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 303, in device_worker
+    update_device_status(device_id, last_mid="9999")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:20:15,205 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:23:10,219 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:23:15,286 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:38:56,307 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 303, in device_worker
+    update_device_status(device_id, last_mid="9999")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:39:01,379 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 12:39:01,889 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:39:06,918 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 268, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        last_error="",
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:39:11,998 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 12:52:24,412 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 355, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        total_results=total_results,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:52:29,484 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:54:13,089 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:54:18,203 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:54:18,714 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:54:23,798 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:54:24,307 | ERROR | ASG_02 | ASG_02 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:54:29,371 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 12:57:28,433 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 12:57:33,518 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 13:01:58,733 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 325, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        total_messages=total_messages,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 13:02:03,812 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 13:02:04,322 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 292, in device_worker
+    update_device_status(device_id, state="subscribed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 13:02:09,382 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 13:06:19,634 | ERROR | ASG_02 | ASG_02 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 301, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-15 13:29:29,756 | ERROR | ASG_06 | ASG_06 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 301, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-15 13:29:33,931 | ERROR | ASG_02 | ASG_02 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 276, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-15 13:29:35,254 | ERROR | ASG_06 | ASG_06 error: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 268, in device_worker
+    update_device_status(
+    ~~~~~~~~~~~~~~~~~~~~^
+        device_id,
+        ^^^^^^^^^^
+    ...<2 lines>...
+        last_error="",
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 134, in update_device_status
+    write_status_file()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 158, in write_status_file
+    temp_file.replace(STATUS_FILE)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 780, in replace
+    os.replace(self, target)
+    ~~~~~~~~~~^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Acceso denegado: 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.tmp' -> 'C:\\asg_data_acquisition_SPC_F09\\logs\\device_status.json'
+2026-07-15 13:29:39,212 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 13:31:50,022 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-15 13:31:50,424 | INFO | writer | Writer detenido
+2026-07-15 13:31:50,448 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-15 13:34:57,193 | INFO | writer | Writer iniciado
+2026-07-15 13:34:57,194 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-15 13:34:57,194 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-15 13:34:57,195 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-15 13:34:57,196 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-15 13:34:57,197 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-15 13:34:57,198 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-15 13:34:57,218 | INFO | ASG_02 | ASG_02 conectado
+2026-07-15 13:34:57,229 | INFO | ASG_05 | ASG_05 conectado
+2026-07-15 13:34:57,231 | INFO | ASG_04 | ASG_04 conectado
+2026-07-15 13:34:57,233 | INFO | ASG_01 | ASG_01 conectado
+2026-07-15 13:34:57,236 | INFO | ASG_07 | ASG_07 conectado
+2026-07-15 13:34:57,237 | INFO | ASG_06 | ASG_06 conectado
+2026-07-15 13:35:15,994 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-15 13:35:16,654 | INFO | ASG_01 | Worker ASG_01 detenido
+2026-07-15 13:35:16,691 | INFO | writer | Writer detenido
+2026-07-15 13:35:16,795 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-15 13:35:16,855 | INFO | ASG_07 | Worker ASG_07 detenido
+2026-07-15 13:35:16,857 | INFO | ASG_05 | Worker ASG_05 detenido
+2026-07-15 13:35:16,860 | INFO | ASG_04 | Worker ASG_04 detenido
+2026-07-15 13:35:16,871 | INFO | ASG_06 | Worker ASG_06 detenido

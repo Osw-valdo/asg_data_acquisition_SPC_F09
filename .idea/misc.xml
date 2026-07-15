@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (asg_data_acquisition_SPC_F09)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 virtualenv at C:\asg_data_acquisition_SPC_F09\.venv" project-jdk-type="Python SDK" />
 </project>

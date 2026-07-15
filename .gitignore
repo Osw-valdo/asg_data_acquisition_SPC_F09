@@ -1,0 +1,45 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Logs
+logs/
+*.log
+
+# Datos de producción
+data/raw_live/
+data/raw_imports/
+data/processed/
+data/exports/
+data/stations/
+database/
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporales
+*.tmp
+*.bak
+*.backup
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+
+# Excel temporales
+~$*.xlsx

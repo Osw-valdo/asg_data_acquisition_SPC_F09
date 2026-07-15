@@ -133,31 +133,29 @@ def update_device_status(device_id: str, **kwargs):
 
     write_status_file()
 
-
 def write_status_file():
     """
-    Escribe el estado de dispositivos de forma segura.
+    Escribe el estado de dispositivos.
 
-    Varios hilos actualizan el estado al mismo tiempo, por eso protegemos
-    la escritura del archivo temporal y el replace final.
+    En Windows evitamos usar archivo .tmp + replace porque puede generar
+    PermissionError si el JSON está siendo leído por otro proceso.
     """
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-    with STATUS_LOCK:
-        devices_copy = json.loads(json.dumps(DEVICE_STATUS, ensure_ascii=False))
-        payload = {
-            "collector_timestamp": now_str(),
-            "devices": devices_copy,
-        }
+        with STATUS_LOCK:
+            devices_copy = json.loads(json.dumps(DEVICE_STATUS, ensure_ascii=False))
+            payload = {
+                "collector_timestamp": now_str(),
+                "devices": devices_copy,
+            }
 
-    with STATUS_FILE_LOCK:
-        temp_file = STATUS_FILE.with_suffix(".tmp")
+        with STATUS_FILE_LOCK:
+            with open(STATUS_FILE, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=4, ensure_ascii=False)
 
-        with open(temp_file, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=4, ensure_ascii=False)
-
-        temp_file.replace(STATUS_FILE)
-
+    except Exception as e:
+        logging.warning("No se pudo escribir device_status.json: %s", e)
 
 def append_csv(file_path: Path, row: dict, columns: list[str]):
     file_path.parent.mkdir(parents=True, exist_ok=True)

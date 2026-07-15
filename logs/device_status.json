@@ -1,5 +1,5 @@
 {
-    "collector_timestamp": "2026-07-14 23:56:28",
+    "collector_timestamp": "2026-07-15 13:35:16",
     "devices": {
         "ASG_01": {
             "device_id": "ASG_01",
@@ -13,12 +13,12 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-14 23:56:28",
-            "last_mid": "",
-            "last_result_pc_timestamp": "",
-            "last_error": "timed out",
-            "total_messages": 0,
-            "total_results": 0
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "0061",
+            "last_result_pc_timestamp": "2026-07-15 13:35:16",
+            "last_error": "",
+            "total_messages": 4,
+            "total_results": 1
         },
         "ASG_02": {
             "device_id": "ASG_02",
@@ -32,11 +32,11 @@
             "station_type": "shared",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-14 23:56:28",
-            "last_mid": "",
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "9999",
             "last_result_pc_timestamp": "",
-            "last_error": "timed out",
-            "total_messages": 0,
+            "last_error": "",
+            "total_messages": 3,
             "total_results": 0
         },
         "ASG_04": {
@@ -50,12 +50,12 @@
             "process": "HUD05",
             "station_type": "shared",
             "connected": false,
-            "state": "error_retrying",
-            "last_heartbeat": "2026-07-14 23:55:48",
-            "last_mid": "",
+            "state": "stopped",
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "9999",
             "last_result_pc_timestamp": "",
-            "last_error": "[Errno 2] No such file or directory: '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.tmp' -> '/home/unbutu-valdo/Projects/asg_data_acquisition_SPC_F09/logs/device_status.json'",
-            "total_messages": 0,
+            "last_error": "",
+            "total_messages": 3,
             "total_results": 0
         },
         "ASG_05": {
@@ -70,11 +70,11 @@
             "station_type": "exclusive",
             "connected": false,
             "state": "stopped",
-            "last_heartbeat": "2026-07-14 23:56:28",
-            "last_mid": "",
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "9999",
             "last_result_pc_timestamp": "",
-            "last_error": "timed out",
-            "total_messages": 0,
+            "last_error": "",
+            "total_messages": 3,
             "total_results": 0
         },
         "ASG_06": {
@@ -88,12 +88,12 @@
             "process": "HDS503",
             "station_type": "exclusive",
             "connected": false,
-            "state": "error_retrying",
-            "last_heartbeat": "2026-07-14 23:55:53",
-            "last_mid": "",
+            "state": "stopped",
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "9999",
             "last_result_pc_timestamp": "",
-            "last_error": "timed out",
-            "total_messages": 0,
+            "last_error": "",
+            "total_messages": 3,
             "total_results": 0
         },
         "ASG_07": {
@@ -107,12 +107,12 @@
             "process": "HUD07",
             "station_type": "shared",
             "connected": false,
-            "state": "error_retrying",
-            "last_heartbeat": "2026-07-14 23:55:53",
-            "last_mid": "",
+            "state": "stopped",
+            "last_heartbeat": "2026-07-15 13:35:16",
+            "last_mid": "9999",
             "last_result_pc_timestamp": "",
-            "last_error": "timed out",
-            "total_messages": 0,
+            "last_error": "",
+            "total_messages": 3,
             "total_results": 0
         }
     }
