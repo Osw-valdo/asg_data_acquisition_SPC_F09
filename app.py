@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
 import json
 import time
 
@@ -17,6 +18,7 @@ PROCESSED_DIR = DATA_DIR / "processed"
 LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
+APP_VERSION = "v0.3"
 
 
 st.set_page_config(
@@ -678,6 +680,51 @@ Carpeta de datos:
     )
 
 
+
+def render_about_tab():
+    st.subheader("Acerca del sistema")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Proyecto", "ASG SPC F09")
+    c2.metric("Versión", APP_VERSION)
+    c3.metric("Línea", "F09")
+    c4.metric("Autor", "Ing. Oswaldo Cantú Casillas")
+
+    st.markdown(
+        """
+        Este sistema permite adquirir, procesar, visualizar y almacenar datos de torque y ángulo
+        desde módulos ASG-NW2500 de la línea F09.
+
+        **Objetivo principal:** generar trazabilidad automática de resultados de atornillado
+        por estación, proceso, modelo de corrida e IP.
+
+        **Modelos soportados:**
+
+        - T1XX-1
+        - T1XX-2
+
+        **Salidas disponibles:**
+
+        - CSV RAW
+        - CSV procesado
+        - SQLite master
+        - SQLite por estación
+        - Logs de conexión
+        - Dashboard Streamlit
+        """
+        """
+         **Autor:** Ing. Oswaldo Cantú Casillas  
+         **Área:** Ingeniería / Soporte a producción  
+         **Línea:** F09
+         """
+    )
+
+    st.info(
+        "Proyecto desarrollado como herramienta interna para soporte de producción, "
+        "calidad, mantenimiento e ingeniería."
+    )
+
+
 def main():
     st.title("🔩 ASG Data Acquisition SPC F09")
     st.caption("Dashboard multi-IP para ASG-NW2500 / Open Protocol")
@@ -766,13 +813,14 @@ def main():
         last_n=last_n,
     )
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         [
             "Vista general",
             "Gráficas fusionadas",
             "Dashboard por estación",
             "Tabla de datos",
             "Configuración",
+            "Acerca del sistema",
         ]
     )
 
@@ -792,6 +840,7 @@ def main():
                 auto_scale=auto_scale,
             ),
             use_container_width=True,
+            key="general_torque_chart",
         )
 
         st.plotly_chart(
@@ -801,6 +850,7 @@ def main():
                 auto_scale=auto_scale,
             ),
             use_container_width=True,
+            key="general_angle_chart",
         )
 
     with tab3:
@@ -822,9 +872,14 @@ def main():
     with tab5:
         render_config_tab()
 
+    with tab6:
+        render_about_tab()
+
     if auto_refresh:
-        time.sleep(refresh_seconds)
-        st.rerun()
+        st_autorefresh(
+            interval=refresh_seconds * 1000,
+            key="asg_dashboard_autorefresh",
+        )
 
 
 if __name__ == "__main__":
