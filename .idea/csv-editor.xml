@@ -17,6 +17,83 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\processed\asg_clean_master_2026-07-14.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\processed\asg_clean_master_2026-07-21.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\processed\asg_clean_master_2026-07-24.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\raw_live\asg_raw_live_2026-07-21.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-1\Flat_Mirror_Assy\processed\asg_clean_2026-07-24.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-1\Heatsink_Assy_and_Screwing\processed\asg_clean_2026-07-15.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-1\Heatsink_Assy_and_Screwing\processed\asg_clean_2026-07-21.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-1\Heatsink_Assy_to_Lower_Case\processed\asg_clean_2026-07-15.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-2\Heatsink_Assy_to_Lower_Case\processed\asg_clean_2026-07-21.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-2\Heatsink_Assy_to_Lower_Case\processed\asg_clean_2026-07-22.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\stations\T1XX-2\Leaf_Spring\processed\asg_clean_2026-07-21.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
