@@ -34,6 +34,7 @@ LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
 COLLECTOR_LOG = LOG_DIR / "collector.log"
+SESSION_FILE = LOG_DIR / "production_session.json"
 
 RAW_COLUMNS = [
     "pc_timestamp",
@@ -44,6 +45,9 @@ RAW_COLUMNS = [
     "port",
     "models_supported",
     "running_model",
+    "production_session_id",
+    "production_session_started_at",
+    "production_session_mode",
     "process",
     "station_type",
     "mid",
@@ -96,7 +100,120 @@ def normalize_device_info(device_row) -> dict:
     }
 
 
-def init_device_status(device_info: dict, running_model: str):
+
+def make_production_session_id(running_model: str) -> str:
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_model = str(running_model).replace("/", "_").replace("\\", "_").replace(" ", "_")
+    return f"{safe_model}_{stamp}"
+
+
+def load_session_state() -> dict:
+    if not SESSION_FILE.exists():
+        return {"models": {}}
+
+    try:
+        with open(SESSION_FILE, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+
+        if "models" not in payload:
+            payload["models"] = {}
+
+        return payload
+
+    except Exception:
+        return {"models": {}}
+
+
+def save_session_state(payload: dict):
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+    payload["updated_at"] = now_str()
+
+    with open(SESSION_FILE, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=4, ensure_ascii=False)
+
+
+def create_new_production_session(running_model: str, mode: str = "new") -> dict:
+    session_info = {
+        "production_session_id": make_production_session_id(running_model),
+        "production_session_started_at": now_str(),
+        "production_session_mode": mode,
+        "running_model": running_model,
+    }
+
+    payload = load_session_state()
+    payload.setdefault("models", {})
+    payload["models"][running_model] = session_info
+
+    save_session_state(payload)
+
+    return session_info
+
+
+def continue_production_session(running_model: str, existing_session: dict) -> dict:
+    session_info = dict(existing_session)
+    session_info["production_session_mode"] = "continue"
+    session_info["last_continued_at"] = now_str()
+
+    payload = load_session_state()
+    payload.setdefault("models", {})
+    payload["models"][running_model] = session_info
+
+    save_session_state(payload)
+
+    return session_info
+
+
+def resolve_production_session(
+    running_model: str,
+    force_new: bool = False,
+    force_continue: bool = False,
+) -> dict:
+    payload = load_session_state()
+    existing_session = payload.get("models", {}).get(running_model)
+
+    if force_new:
+        return create_new_production_session(running_model, mode="new")
+
+    if force_continue and existing_session:
+        return continue_production_session(running_model, existing_session)
+
+    if force_continue and not existing_session:
+        print()
+        print(f"No existe sesión previa para {running_model}. Se creará una nueva.")
+        return create_new_production_session(running_model, mode="new")
+
+    print()
+    print("=" * 90)
+    print("CONFIGURACIÓN DE CONTEO DE PIEZAS")
+    print("=" * 90)
+    print(f"Modelo: {running_model}")
+    print()
+
+    if existing_session:
+        print("Sesión actual encontrada:")
+        print(f"- ID:      {existing_session.get('production_session_id', '')}")
+        print(f"- Inicio:  {existing_session.get('production_session_started_at', '')}")
+        print()
+        print("1) Continuar conteo actual")
+        print("2) Iniciar nuevo conteo")
+        print()
+        option = input("Opción [1/2]: ").strip()
+
+        if option == "2":
+            return create_new_production_session(running_model, mode="new")
+
+        return continue_production_session(running_model, existing_session)
+
+    print("No existe sesión previa para este modelo.")
+    print("Se iniciará un nuevo conteo.")
+    print()
+
+    return create_new_production_session(running_model, mode="new")
+
+
+def init_device_status(device_info: dict, running_model: str, session_info=None):
+    session_info = session_info or {}
     device_id = device_info["device_id"]
 
     with STATUS_LOCK:
@@ -108,6 +225,9 @@ def init_device_status(device_info: dict, running_model: str):
             "port": device_info["port"],
             "models_supported": device_info["models"],
             "running_model": running_model,
+            "production_session_id": session_info.get("production_session_id", ""),
+            "production_session_started_at": session_info.get("production_session_started_at", ""),
+            "production_session_mode": session_info.get("production_session_mode", ""),
             "process": device_info["process"],
             "station_type": device_info["station_type"],
             "connected": False,
@@ -190,7 +310,8 @@ def get_station_raw_file(raw_row: dict) -> Path:
     )
 
 
-def build_raw_row(raw_packet: str, device_info: dict, running_model: str) -> dict:
+def build_raw_row(raw_packet: str, device_info: dict, running_model: str, session_info=None) -> dict:
+    session_info = session_info or {}
     packet = parse_packet(raw_packet)
 
     return {
@@ -249,6 +370,7 @@ def writer_worker(event_queue: queue.Queue, stop_event: threading.Event):
 def device_worker(
     device_info: dict,
     running_model: str,
+    session_info: dict,
     event_queue: queue.Queue,
     stop_event: threading.Event,
 ):
@@ -315,7 +437,7 @@ def device_worker(
                         mid = get_mid_from_raw(raw_packet)
                         revision = get_revision_from_raw(raw_packet)
 
-                        raw_row = build_raw_row(raw_packet, device_info, running_model)
+                        raw_row = build_raw_row(raw_packet, device_info, running_model, session_info=session_info)
                         event_queue.put({"type": "raw", "row": raw_row})
 
                         with STATUS_LOCK:
@@ -344,6 +466,14 @@ def device_worker(
                                 raw_packet=raw_packet,
                                 device_info=device_info,
                                 running_model=running_model,
+                            )
+
+                            clean_row.update(
+                                {
+                                    "production_session_id": session_info.get("production_session_id", ""),
+                                    "production_session_started_at": session_info.get("production_session_started_at", ""),
+                                    "production_session_mode": session_info.get("production_session_mode", ""),
+                                }
                             )
 
                             event_queue.put({"type": "clean", "row": clean_row})
@@ -408,11 +538,15 @@ def device_worker(
     logging.info("Worker %s detenido", device_id)
 
 
-def print_startup_summary(devices, running_model: str):
+def print_startup_summary(devices, running_model: str, session_info=None):
+    session_info = session_info or {}
     print("=" * 90)
     print("ASG DATA ACQUISITION SPC F09 - MULTI IP COLLECTOR")
     print("=" * 90)
     print(f"Modelo de corrida: {running_model}")
+    print(f"Sesión conteo: {session_info.get('production_session_id', '')}")
+    print(f"Inicio conteo:  {session_info.get('production_session_started_at', '')}")
+    print(f"Modo conteo:    {session_info.get('production_session_mode', '')}")
     print(f"Equipos a monitorear: {len(devices)}")
     print()
     print("Equipos:")
@@ -446,6 +580,18 @@ def parse_args():
         help="Modelo de corrida. Ejemplo: --model T1XX-1",
     )
 
+    parser.add_argument(
+        "--new-count",
+        action="store_true",
+        help="Inicia una nueva sesión de conteo sin preguntar.",
+    )
+
+    parser.add_argument(
+        "--continue-count",
+        action="store_true",
+        help="Continúa la sesión de conteo actual sin preguntar.",
+    )
+
     return parser.parse_args()
 
 
@@ -469,6 +615,12 @@ def main():
     args = parse_args()
     running_model = args.model or ask_running_model()
 
+    session_info = resolve_production_session(
+        running_model=running_model,
+        force_new=args.new_count,
+        force_continue=args.continue_count,
+    )
+
     devices = get_devices_by_model(running_model)
 
     if devices.empty:
@@ -480,9 +632,9 @@ def main():
 
     for _, row in devices.iterrows():
         device_info = normalize_device_info(row)
-        init_device_status(device_info, running_model)
+        init_device_status(device_info, running_model, session_info)
 
-    print_startup_summary(devices, running_model)
+    print_startup_summary(devices, running_model, session_info)
 
     writer_thread = threading.Thread(
         target=writer_worker,
@@ -499,7 +651,7 @@ def main():
 
         thread = threading.Thread(
             target=device_worker,
-            args=(device_info, running_model, event_queue, stop_event),
+            args=(device_info, running_model, session_info, event_queue, stop_event),
             name=device_info["device_id"],
             daemon=True,
         )

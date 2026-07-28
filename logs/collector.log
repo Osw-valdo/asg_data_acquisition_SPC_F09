@@ -372179,3 +372179,471 @@ Traceback (most recent call last):
     raise ConnectionError("El ASG cerró la conexión.")
 ConnectionError: El ASG cerró la conexión.
 2026-07-24 11:48:24,663 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 08:03:16,435 | INFO | writer | Writer iniciado
+2026-07-28 08:03:16,436 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 08:03:16,437 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 08:03:16,438 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 08:03:16,438 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 08:03:16,439 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 08:03:16,440 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 08:03:16,498 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 08:03:16,506 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 08:03:16,515 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 08:03:16,522 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 08:03:16,530 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 08:03:16,541 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 08:12:46,429 | INFO | writer | Writer iniciado
+2026-07-28 08:12:46,430 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 08:12:46,430 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 08:12:46,431 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 08:12:46,432 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 08:12:46,433 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 08:12:46,434 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 08:12:46,501 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 08:12:46,511 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 08:12:46,520 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 08:12:46,530 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 08:12:46,538 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 08:12:46,551 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 08:18:10,512 | INFO | writer | Writer iniciado
+2026-07-28 08:18:10,513 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 08:18:10,514 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 08:18:10,515 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 08:18:10,516 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 08:18:10,517 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 08:18:10,518 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 08:18:10,586 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 08:18:10,598 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 08:18:10,608 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 08:18:10,618 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 08:18:10,627 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 08:18:10,640 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 08:31:13,354 | INFO | writer | Writer iniciado
+2026-07-28 08:31:13,355 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 08:31:13,356 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 08:31:13,357 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 08:31:13,358 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 08:31:13,360 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 08:31:13,361 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 08:31:13,430 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 08:31:13,439 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 08:31:13,449 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 08:31:13,460 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 08:31:13,469 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 08:31:13,480 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 09:38:07,447 | INFO | writer | Writer iniciado
+2026-07-28 09:38:07,448 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 09:38:07,449 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 09:38:07,449 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 09:38:07,450 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 09:38:07,450 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 09:38:07,451 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 09:38:07,536 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 09:38:07,547 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 09:38:07,559 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 09:38:07,573 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 09:38:07,585 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 09:38:07,594 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 10:03:52,882 | INFO | writer | Writer iniciado
+2026-07-28 10:03:52,884 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 10:03:52,884 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 10:03:52,885 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 10:03:52,886 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 10:03:52,887 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 10:03:52,887 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 10:03:52,977 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 10:03:52,991 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 10:03:53,002 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 10:03:53,015 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 10:03:53,027 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 10:03:53,039 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 10:05:45,658 | INFO | writer | Writer iniciado
+2026-07-28 10:05:45,659 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 10:05:45,660 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 10:05:45,661 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 10:05:45,661 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 10:05:45,662 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 10:05:45,663 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 10:05:45,761 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 10:05:45,774 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 10:05:45,786 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 10:05:45,797 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 10:05:45,811 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 10:05:45,826 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 10:07:51,992 | INFO | writer | Writer iniciado
+2026-07-28 10:07:51,993 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 10:07:51,994 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 10:07:51,995 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 10:07:51,996 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 10:07:51,997 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 10:07:51,998 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 10:07:52,081 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 10:07:52,094 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 10:07:52,104 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 10:07:52,116 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 10:07:52,128 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 10:07:52,138 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 11:58:43,808 | INFO | writer | Writer iniciado
+2026-07-28 11:58:43,810 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 11:58:43,811 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 11:58:43,814 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 11:58:43,815 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 11:58:43,816 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 11:58:43,818 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 11:58:43,838 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 11:58:43,841 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 11:58:43,854 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 11:58:43,856 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 11:58:43,860 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 11:58:43,863 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 13:18:47,391 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:47,392 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:47,392 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:47,392 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:47,392 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:47,392 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:18:52,489 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:18:52,494 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 13:18:52,510 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 13:18:52,559 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 13:18:52,566 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 13:18:52,595 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 13:19:18,701 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:19:23,154 | ERROR | ASG_04 | ASG_04 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 308, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 13:19:23,154 | ERROR | ASG_05 | ASG_05 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 308, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 13:19:23,155 | ERROR | ASG_01 | ASG_01 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 308, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 13:19:23,155 | ERROR | ASG_06 | ASG_06 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 308, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 13:19:23,156 | ERROR | ASG_02 | ASG_02 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 308, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 13:19:24,014 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:19:28,238 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 13:19:28,285 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 13:19:28,322 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 13:19:28,338 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 13:19:28,369 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 13:19:47,542 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:19:52,615 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:34:04,755 | INFO | writer | Writer iniciado
+2026-07-28 13:34:04,758 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 13:34:04,759 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 13:34:04,760 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 13:34:04,761 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 13:34:04,762 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 13:34:04,763 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 13:34:04,778 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 13:34:04,780 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 13:34:04,782 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 13:34:04,783 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 13:34:04,791 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:34:04,805 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 13:52:48,132 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:48,132 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:48,132 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:48,132 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:48,133 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:48,133 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 305, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:52:53,214 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 13:52:53,227 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 13:52:53,245 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:52:53,268 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 13:52:53,316 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 13:52:53,358 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 13:59:15,809 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:15,821 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:15,832 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:15,833 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:15,841 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:15,845 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 300, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 13:59:21,639 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 13:59:21,817 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 13:59:22,162 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 13:59:22,240 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 13:59:22,307 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 13:59:22,311 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:00:34,652 | INFO | writer | Writer iniciado
+2026-07-28 14:00:34,656 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:00:34,658 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:00:34,661 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:00:34,663 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:00:34,667 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:00:34,669 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:00:34,785 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:00:34,802 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:00:34,817 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:00:34,836 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:00:34,855 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:00:34,882 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:04:15,494 | INFO | writer | Writer iniciado
+2026-07-28 14:04:15,496 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:04:15,498 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:04:15,499 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:04:15,501 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:04:15,507 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:04:15,509 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:04:15,561 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:04:15,564 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:04:15,566 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:04:15,575 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:04:15,580 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:04:15,584 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:19:47,931 | INFO | writer | Writer iniciado
+2026-07-28 14:19:47,932 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:19:47,933 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:19:47,934 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:19:47,935 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:19:47,936 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:19:47,937 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:19:48,012 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:19:48,026 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:19:48,039 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:19:48,048 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:19:48,061 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:19:48,072 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:34:24,552 | INFO | writer | Writer iniciado
+2026-07-28 14:34:24,553 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:34:24,554 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:34:24,555 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:34:24,556 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:34:24,557 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:34:24,559 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:34:24,578 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:34:24,580 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:34:24,582 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:34:24,584 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:34:24,587 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:34:24,590 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:49:25,490 | INFO | writer | Writer iniciado
+2026-07-28 14:49:25,491 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:49:25,492 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:49:25,493 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:49:25,494 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:49:25,495 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:49:25,497 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:49:25,525 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:49:25,526 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:49:25,528 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:49:25,531 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:49:25,533 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:49:25,539 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:50:03,238 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-28 14:50:03,286 | INFO | ASG_04 | Worker ASG_04 detenido
+2026-07-28 14:50:03,303 | INFO | writer | Writer detenido
+2026-07-28 14:50:03,395 | INFO | ASG_05 | Worker ASG_05 detenido
+2026-07-28 14:50:03,426 | INFO | ASG_06 | Worker ASG_06 detenido
+2026-07-28 14:50:03,562 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-28 14:50:03,891 | INFO | ASG_01 | Worker ASG_01 detenido
+2026-07-28 14:50:03,982 | INFO | ASG_07 | Worker ASG_07 detenido
+2026-07-28 14:50:36,072 | INFO | writer | Writer iniciado
+2026-07-28 14:50:36,073 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:50:36,073 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:50:36,074 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:50:36,075 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:50:36,075 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:50:36,076 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:50:36,147 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:50:36,158 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:50:36,175 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:50:36,185 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:50:36,192 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 14:50:36,201 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:51:06,413 | INFO | writer | Writer iniciado
+2026-07-28 14:51:06,414 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 14:51:06,415 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 14:51:06,415 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 14:51:06,416 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 14:51:06,417 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 14:51:06,417 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 14:51:06,500 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 14:51:06,512 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 14:51:06,524 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 14:51:06,536 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 14:51:06,547 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 14:51:06,555 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 15:10:32,110 | INFO | MainThread | Deteniendo colector por KeyboardInterrupt
+2026-07-28 15:10:32,470 | INFO | ASG_04 | Worker ASG_04 detenido
+2026-07-28 15:10:32,500 | INFO | ASG_05 | Worker ASG_05 detenido
+2026-07-28 15:10:32,731 | INFO | ASG_01 | Worker ASG_01 detenido
+2026-07-28 15:10:32,943 | INFO | ASG_02 | Worker ASG_02 detenido
+2026-07-28 15:10:33,046 | INFO | writer | Writer detenido
+2026-07-28 15:10:33,050 | INFO | ASG_06 | Worker ASG_06 detenido
+2026-07-28 15:10:33,054 | INFO | ASG_07 | Worker ASG_07 detenido
+2026-07-28 15:15:56,368 | INFO | writer | Writer iniciado
+2026-07-28 15:15:56,369 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 15:15:56,370 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 15:15:56,370 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 15:15:56,371 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 15:15:56,372 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 15:15:56,372 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 15:15:56,457 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 15:15:56,470 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 15:15:56,484 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 15:15:56,497 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 15:15:56,512 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 15:15:56,525 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 15:33:39,284 | INFO | writer | Writer iniciado
+2026-07-28 15:33:39,286 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 15:33:39,286 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 15:33:39,287 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 15:33:39,289 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 15:33:39,289 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 15:33:39,290 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 15:33:39,341 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 15:33:39,348 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 15:33:39,356 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 15:33:39,365 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 15:33:39,370 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 15:33:39,379 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 15:45:55,416 | INFO | writer | Writer iniciado
+2026-07-28 15:45:55,417 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 15:45:55,418 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 15:45:55,419 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 15:45:55,420 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 15:45:55,421 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 15:45:55,422 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 15:45:55,506 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 15:45:55,518 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 15:45:55,530 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 15:45:55,543 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 15:45:55,556 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 15:45:55,568 | INFO | ASG_07 | ASG_07 conectado

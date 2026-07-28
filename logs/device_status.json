@@ -1,5 +1,5 @@
 {
-    "collector_timestamp": "2026-07-24 15:33:22",
+    "collector_timestamp": "2026-07-28 17:13:01",
     "devices": {
         "ASG_01": {
             "device_id": "ASG_01",
@@ -9,16 +9,19 @@
             "port": 4545,
             "models_supported": "T1XX-1|T1XX-2",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HDS302",
             "station_type": "shared",
             "connected": true,
             "state": "receiving",
-            "last_heartbeat": "2026-07-24 15:33:20",
+            "last_heartbeat": "2026-07-28 17:13:01",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "2026-07-24 15:33:15",
+            "last_result_pc_timestamp": "2026-07-28 17:12:54",
             "last_error": "",
-            "total_messages": 2818,
-            "total_results": 424
+            "total_messages": 479,
+            "total_results": 3
         },
         "ASG_02": {
             "device_id": "ASG_02",
@@ -28,16 +31,19 @@
             "port": 4545,
             "models_supported": "T1XX-1|T1XX-2",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HUD02",
             "station_type": "shared",
             "connected": true,
-            "state": "result_received",
-            "last_heartbeat": "2026-07-24 15:33:18",
-            "last_mid": "0061",
-            "last_result_pc_timestamp": "2026-07-24 15:33:18",
+            "state": "receiving",
+            "last_heartbeat": "2026-07-28 17:12:59",
+            "last_mid": "9999",
+            "last_result_pc_timestamp": "2026-07-28 16:16:43",
             "last_error": "",
-            "total_messages": 2960,
-            "total_results": 572
+            "total_messages": 514,
+            "total_results": 40
         },
         "ASG_04": {
             "device_id": "ASG_04",
@@ -47,16 +53,19 @@
             "port": 4545,
             "models_supported": "T1XX-1|T1XX-2",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HUD05",
             "station_type": "shared",
             "connected": true,
             "state": "receiving",
-            "last_heartbeat": "2026-07-24 15:33:22",
+            "last_heartbeat": "2026-07-28 17:13:00",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "2026-07-24 15:15:40",
+            "last_result_pc_timestamp": "2026-07-28 16:16:01",
             "last_error": "",
-            "total_messages": 2934,
-            "total_results": 545
+            "total_messages": 522,
+            "total_results": 48
         },
         "ASG_05": {
             "device_id": "ASG_05",
@@ -66,16 +75,19 @@
             "port": 4545,
             "models_supported": "T1XX-1",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HUD06",
             "station_type": "exclusive",
             "connected": true,
             "state": "receiving",
-            "last_heartbeat": "2026-07-24 15:33:14",
+            "last_heartbeat": "2026-07-28 17:12:59",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "2026-07-24 15:14:43",
+            "last_result_pc_timestamp": "2026-07-28 16:15:15",
             "last_error": "",
-            "total_messages": 2669,
-            "total_results": 272
+            "total_messages": 499,
+            "total_results": 24
         },
         "ASG_06": {
             "device_id": "ASG_06",
@@ -85,16 +97,19 @@
             "port": 4545,
             "models_supported": "T1XX-1",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HDS503",
             "station_type": "exclusive",
             "connected": true,
             "state": "receiving",
-            "last_heartbeat": "2026-07-24 15:33:16",
+            "last_heartbeat": "2026-07-28 17:13:00",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "2026-07-24 15:09:43",
+            "last_result_pc_timestamp": "2026-07-28 17:12:18",
             "last_error": "",
-            "total_messages": 2520,
-            "total_results": 123
+            "total_messages": 491,
+            "total_results": 16
         },
         "ASG_07": {
             "device_id": "ASG_07",
@@ -104,16 +119,19 @@
             "port": 4545,
             "models_supported": "T1XX-1|T1XX-2",
             "running_model": "T1XX-1",
+            "production_session_id": "T1XX-1_20260728_151556",
+            "production_session_started_at": "2026-07-28 15:15:56",
+            "production_session_mode": "continue",
             "process": "HUD07",
             "station_type": "shared",
             "connected": true,
             "state": "receiving",
-            "last_heartbeat": "2026-07-24 15:33:19",
+            "last_heartbeat": "2026-07-28 17:12:59",
             "last_mid": "9999",
-            "last_result_pc_timestamp": "2026-07-24 15:33:16",
+            "last_result_pc_timestamp": "2026-07-28 16:57:36",
             "last_error": "",
-            "total_messages": 3238,
-            "total_results": 869
+            "total_messages": 661,
+            "total_results": 192
         }
     }
 }

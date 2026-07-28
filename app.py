@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
 from src.asg_config import get_enabled_devices, get_devices_by_model
 
@@ -17,7 +18,8 @@ PROCESSED_DIR = DATA_DIR / "processed"
 LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
-APP_VERSION = "v0.3.1"
+SESSION_FILE = LOG_DIR / "production_session.json"
+APP_VERSION = "v0.5.5"
 
 
 st.set_page_config(
@@ -40,7 +42,71 @@ def fmt_value(value, decimals=2):
         return str(value)
 
 
-@st.cache_data(ttl=2)
+def fmt_seconds(value):
+    try:
+        if pd.isna(value):
+            return "—"
+
+        value = float(value)
+
+        if value < 60:
+            return f"{value:.1f} s"
+
+        minutes = value / 60
+
+        if minutes < 60:
+            return f"{minutes:.1f} min"
+
+        hours = minutes / 60
+        return f"{hours:.2f} h"
+
+    except Exception:
+        return "—"
+
+
+def get_screws_column(selected_model):
+    if selected_model == "T1XX-1":
+        return "screws_per_piece_t1xx1"
+
+    if selected_model == "T1XX-2":
+        return "screws_per_piece_t1xx2"
+
+    return "screws_per_piece"
+
+
+def get_screws_from_config(config, selected_model):
+    screws_col = get_screws_column(selected_model)
+
+    value = config.get(screws_col, None)
+
+    try:
+        if pd.isna(value):
+            return None
+
+        value = int(float(value))
+
+        if value <= 0:
+            return None
+
+        return value
+
+    except Exception:
+        return None
+
+
+
+def get_time_window_minutes(option):
+    mapping = {
+        "Últimos 15 min": 15,
+        "Últimos 30 min": 30,
+        "Últimos 60 min": 60,
+        "Todo el día": None,
+    }
+
+    return mapping.get(option, 30)
+
+
+@st.cache_data(ttl=1)
 def load_status():
     if not STATUS_FILE.exists():
         return {}
@@ -52,7 +118,7 @@ def load_status():
         return {}
 
 
-@st.cache_data(ttl=2)
+@st.cache_data(ttl=1)
 def load_clean_data():
     today_file = PROCESSED_DIR / f"asg_clean_master_{today_str()}.csv"
 
@@ -64,17 +130,14 @@ def load_clean_data():
     except Exception:
         return pd.DataFrame()
 
-    # Convertimos ambos tiempos, pero para graficar usaremos pc_timestamp.
-    # timestamp_asg se conserva como trazabilidad.
     if "timestamp_asg" in df.columns:
         df["timestamp_asg"] = pd.to_datetime(df["timestamp_asg"], errors="coerce")
 
     if "pc_timestamp" in df.columns:
         df["pc_timestamp"] = pd.to_datetime(df["pc_timestamp"], errors="coerce")
 
-    # Timestamp oficial para gráficas:
-    # 1) pc_timestamp como principal
-    # 2) timestamp_asg solo como respaldo si pc_timestamp viene vacío
+    # Para graficar usamos la hora de la PC.
+    # La hora del ASG se conserva solo como trazabilidad.
     if "pc_timestamp" in df.columns:
         df["plot_timestamp"] = df["pc_timestamp"]
     elif "timestamp_asg" in df.columns:
@@ -102,15 +165,11 @@ def load_clean_data():
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # Columna visual:
-    # El ASG puede mandar NOK, pero en piso lo mostraremos como NG.
     if "tightening_status" in df.columns:
         df["result_label"] = df["tightening_status"].replace({"NOK": "NG"})
     else:
         df["result_label"] = ""
 
-    # Columna visual de tarea:
-    # Se forma usando job_id y parameter_set_id.
     def build_task_label(row):
         job = str(row.get("job_id", "")).strip()
         pset = row.get("parameter_set_id", "")
@@ -141,6 +200,70 @@ def load_clean_data():
     return df
 
 
+
+@st.cache_data(ttl=1)
+def load_session_state():
+    if not SESSION_FILE.exists():
+        return {"models": {}}
+
+    try:
+        with open(SESSION_FILE, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+
+        if "models" not in payload:
+            payload["models"] = {}
+
+        return payload
+
+    except Exception:
+        return {"models": {}}
+
+
+def get_active_session_info(session_payload, selected_model):
+    if not session_payload:
+        return {}
+
+    return session_payload.get("models", {}).get(selected_model, {}) or {}
+
+
+def apply_count_scope(df, selected_model, count_scope, session_payload):
+    """
+    Controla si el dashboard muestra:
+    - Sesión actual: datos desde que inició el conteo actual del modelo.
+    - Todo el día: todos los datos del CSV diario.
+
+    Esto permite iniciar nuevo conteo sin borrar archivos anteriores.
+    """
+    if df.empty:
+        return df
+
+    if count_scope != "Sesión actual":
+        return df
+
+    session_info = get_active_session_info(session_payload, selected_model)
+    session_start = session_info.get("production_session_started_at", "")
+
+    if not session_start:
+        return df
+
+    filtered = df.copy()
+
+    time_col = "plot_timestamp" if "plot_timestamp" in filtered.columns else "pc_timestamp"
+
+    if time_col not in filtered.columns:
+        return filtered
+
+    filtered[time_col] = pd.to_datetime(filtered[time_col], errors="coerce")
+    start_dt = pd.to_datetime(session_start, errors="coerce")
+
+    if pd.isna(start_dt):
+        return filtered
+
+    filtered = filtered[filtered[time_col] >= start_dt]
+
+    return filtered
+
+
 def status_to_dataframe(status_payload):
     devices = status_payload.get("devices", {})
 
@@ -165,7 +288,14 @@ def safe_customdata(df, columns):
     return temp[columns].fillna("").values
 
 
-def filter_data(df, selected_model, selected_devices, selected_result, last_n):
+def filter_data(
+    df,
+    selected_model,
+    selected_devices,
+    selected_result,
+    last_n,
+    time_window_minutes=None,
+):
     if df.empty:
         return df
 
@@ -183,7 +313,17 @@ def filter_data(df, selected_model, selected_devices, selected_result, last_n):
     sort_col = "plot_timestamp" if "plot_timestamp" in filtered.columns else "pc_timestamp"
 
     if sort_col in filtered.columns:
+        filtered[sort_col] = pd.to_datetime(filtered[sort_col], errors="coerce")
         filtered = filtered.sort_values(sort_col)
+
+    # Ventana de tiempo para visualización en vivo.
+    # Se usa como referencia el último dato recibido, no la hora actual del sistema.
+    if time_window_minutes is not None and sort_col in filtered.columns:
+        reference_time = filtered[sort_col].max()
+
+        if pd.notna(reference_time):
+            start_time = reference_time - pd.Timedelta(minutes=time_window_minutes)
+            filtered = filtered[filtered[sort_col] >= start_time]
 
     # Tomar últimos N resultados por estación, no globalmente.
     if last_n > 0 and "device_id" in filtered.columns:
@@ -199,6 +339,295 @@ def filter_data(df, selected_model, selected_devices, selected_result, last_n):
         filtered = filtered.sort_values(sort_col)
 
     return filtered
+
+
+def filter_cycle_base_data(
+    df,
+    selected_model,
+    selected_devices,
+    last_n,
+    time_window_minutes=None,
+):
+    # Para tiempos de ciclo usamos OK + NG.
+    # No aplicamos filtro de resultado, porque una pieza NG también consume ciclo.
+    return filter_data(
+        df=df,
+        selected_model=selected_model,
+        selected_devices=selected_devices,
+        selected_result="Todos",
+        last_n=last_n,
+        time_window_minutes=time_window_minutes,
+    )
+
+
+def calculate_piece_cycles(df, devices_for_model, selected_model):
+    if df.empty or devices_for_model is None or devices_for_model.empty:
+        return pd.DataFrame()
+
+    if "device_id" not in df.columns or "plot_timestamp" not in df.columns:
+        return pd.DataFrame()
+
+    config_lookup = {}
+
+    for _, row in devices_for_model.iterrows():
+        config_lookup[row["device_id"]] = row.to_dict()
+
+    rows = []
+
+    work_df = df.copy()
+    work_df = work_df.dropna(subset=["plot_timestamp"])
+    work_df = work_df.sort_values(["device_id", "plot_timestamp"])
+
+    for device_id, station_df in work_df.groupby("device_id"):
+        config = config_lookup.get(device_id, {})
+        screws_per_piece = get_screws_from_config(config, selected_model)
+
+        if not screws_per_piece:
+            continue
+
+        station_df = station_df.sort_values("plot_timestamp").reset_index(drop=True)
+
+        station_df["screw_sequence_in_station"] = station_df.index + 1
+        station_df["piece_number"] = (
+            (station_df["screw_sequence_in_station"] - 1) // screws_per_piece
+        ) + 1
+        station_df["screw_number_in_piece"] = (
+            (station_df["screw_sequence_in_station"] - 1) % screws_per_piece
+        ) + 1
+
+        for piece_number, piece_df in station_df.groupby("piece_number"):
+            if len(piece_df) < screws_per_piece:
+                continue
+
+            piece_df = piece_df.sort_values("plot_timestamp")
+
+            piece_start = piece_df["plot_timestamp"].iloc[0]
+            piece_end = piece_df["plot_timestamp"].iloc[-1]
+            tightening_time_sec = (piece_end - piece_start).total_seconds()
+
+            result_values = piece_df.get("result_label", pd.Series(dtype=str)).astype(str).tolist()
+            piece_result = "NG" if "NG" in result_values else "OK"
+
+            task_values = sorted(
+                {
+                    str(x).strip()
+                    for x in piece_df.get("task_label", pd.Series(dtype=str)).tolist()
+                    if str(x).strip() and str(x).strip().lower() != "nan"
+                }
+            )
+
+            rows.append(
+                {
+                    "running_model": selected_model,
+                    "device_id": device_id,
+                    "station": piece_df["station"].iloc[-1] if "station" in piece_df.columns else config.get("station", ""),
+                    "module_name": piece_df["module_name"].iloc[-1] if "module_name" in piece_df.columns else config.get("module_name", ""),
+                    "process": piece_df["process"].iloc[-1] if "process" in piece_df.columns else config.get("process", ""),
+                    "station_type": piece_df["station_type"].iloc[-1] if "station_type" in piece_df.columns else config.get("station_type", ""),
+                    "screws_per_piece": screws_per_piece,
+                    "piece_number": int(piece_number),
+                    "piece_start_time": piece_start,
+                    "piece_end_time": piece_end,
+                    "tightening_time_sec": tightening_time_sec,
+                    "piece_result": piece_result,
+                    "tasks_in_piece": " | ".join(task_values),
+                    "first_tightening_id": piece_df["tightening_id"].iloc[0] if "tightening_id" in piece_df.columns else "",
+                    "last_tightening_id": piece_df["tightening_id"].iloc[-1] if "tightening_id" in piece_df.columns else "",
+                    "torque_avg": piece_df["torque_actual"].mean() if "torque_actual" in piece_df.columns else None,
+                    "torque_min_actual": piece_df["torque_actual"].min() if "torque_actual" in piece_df.columns else None,
+                    "torque_max_actual": piece_df["torque_actual"].max() if "torque_actual" in piece_df.columns else None,
+                    "angle_avg": piece_df["angle_actual"].mean() if "angle_actual" in piece_df.columns else None,
+                    "screws_ok": int((piece_df["result_label"] == "OK").sum()) if "result_label" in piece_df.columns else None,
+                    "screws_ng": int((piece_df["result_label"] == "NG").sum()) if "result_label" in piece_df.columns else None,
+                }
+            )
+
+    pieces_df = pd.DataFrame(rows)
+
+    if pieces_df.empty:
+        return pieces_df
+
+    pieces_df = pieces_df.sort_values(["device_id", "piece_start_time"])
+
+    pieces_df["cycle_time_sec"] = (
+        pieces_df
+        .groupby("device_id")["piece_start_time"]
+        .diff()
+        .dt.total_seconds()
+    )
+
+    return pieces_df
+
+
+def calculate_cycle_summary(df, pieces_df, devices_for_model, selected_model):
+    if devices_for_model is None or devices_for_model.empty:
+        return pd.DataFrame()
+
+    rows = []
+
+    for _, config_row in devices_for_model.iterrows():
+        config = config_row.to_dict()
+        device_id = config.get("device_id", "")
+        screws_per_piece = get_screws_from_config(config, selected_model)
+
+        if not screws_per_piece:
+            screws_per_piece = 0
+
+        station_df = pd.DataFrame()
+
+        if not df.empty and "device_id" in df.columns:
+            station_df = df[df["device_id"] == device_id].copy()
+
+        total_screws = len(station_df)
+
+        if screws_per_piece > 0:
+            complete_pieces = total_screws // screws_per_piece
+            partial_screws = total_screws % screws_per_piece
+        else:
+            complete_pieces = 0
+            partial_screws = 0
+
+        station_pieces = pd.DataFrame()
+
+        if pieces_df is not None and not pieces_df.empty:
+            station_pieces = pieces_df[pieces_df["device_id"] == device_id].copy()
+
+        cycle_values = pd.Series(dtype=float)
+        tightening_values = pd.Series(dtype=float)
+
+        if not station_pieces.empty:
+            cycle_values = pd.to_numeric(station_pieces["cycle_time_sec"], errors="coerce").dropna()
+            cycle_values = cycle_values[cycle_values > 0]
+
+            tightening_values = pd.to_numeric(station_pieces["tightening_time_sec"], errors="coerce").dropna()
+            tightening_values = tightening_values[tightening_values >= 0]
+
+        rows.append(
+            {
+                "device_id": device_id,
+                "station": config.get("station", ""),
+                "process": config.get("process", ""),
+                "module_name": config.get("module_name", ""),
+                "screws_per_piece": screws_per_piece,
+                "torque_results": total_screws,
+                "complete_pieces": complete_pieces,
+                "partial_screws": partial_screws,
+                "avg_cycle_time_sec": cycle_values.mean() if not cycle_values.empty else None,
+                "min_cycle_time_sec": cycle_values.min() if not cycle_values.empty else None,
+                "max_cycle_time_sec": cycle_values.max() if not cycle_values.empty else None,
+                "std_cycle_time_sec": cycle_values.std() if len(cycle_values) > 1 else None,
+                "avg_tightening_time_sec": tightening_values.mean() if not tightening_values.empty else None,
+            }
+        )
+
+    summary_df = pd.DataFrame(rows)
+
+    if summary_df.empty:
+        return summary_df
+
+    for col in [
+        "avg_cycle_time_sec",
+        "min_cycle_time_sec",
+        "max_cycle_time_sec",
+        "std_cycle_time_sec",
+        "avg_tightening_time_sec",
+    ]:
+        summary_df[f"{col}_fmt"] = summary_df[col].apply(fmt_seconds)
+
+    return summary_df
+
+
+def save_cycle_outputs(pieces_df, summary_df, selected_model):
+    """
+    Guarda automáticamente los cálculos de piezas y tiempos de ciclo.
+
+    Importante:
+    - Estos CSV son datos calculados desde el CSV limpio master.
+    - No reemplazan el RAW ni el asg_clean_master.
+    - Se guardan por modelo y por día.
+    """
+    try:
+        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+        safe_model = str(selected_model).replace("/", "_").replace("\\", "_").replace(" ", "_")
+        date_txt = today_str()
+
+        pieces_file = PROCESSED_DIR / f"asg_piece_cycles_{safe_model}_{date_txt}.csv"
+        summary_file = PROCESSED_DIR / f"asg_cycle_summary_{safe_model}_{date_txt}.csv"
+
+        exported_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if pieces_df is None:
+            pieces_df = pd.DataFrame()
+
+        if summary_df is None:
+            summary_df = pd.DataFrame()
+
+        pieces_export = pieces_df.copy()
+        summary_export = summary_df.copy()
+
+        if pieces_export.empty and len(pieces_export.columns) == 0:
+            pieces_export = pd.DataFrame(
+                columns=[
+                    "export_timestamp_pc",
+                    "export_model",
+                    "running_model",
+                    "device_id",
+                    "station",
+                    "process",
+                    "screws_per_piece",
+                    "piece_number",
+                    "piece_start_time",
+                    "piece_end_time",
+                    "cycle_time_sec",
+                    "tightening_time_sec",
+                    "piece_result",
+                ]
+            )
+        else:
+            pieces_export.insert(0, "export_timestamp_pc", exported_at)
+            pieces_export.insert(1, "export_model", selected_model)
+
+        if summary_export.empty and len(summary_export.columns) == 0:
+            summary_export = pd.DataFrame(
+                columns=[
+                    "export_timestamp_pc",
+                    "export_model",
+                    "device_id",
+                    "station",
+                    "process",
+                    "screws_per_piece",
+                    "torque_results",
+                    "complete_pieces",
+                    "partial_screws",
+                    "avg_cycle_time_sec",
+                    "min_cycle_time_sec",
+                    "max_cycle_time_sec",
+                    "std_cycle_time_sec",
+                    "avg_tightening_time_sec",
+                ]
+            )
+        else:
+            summary_export.insert(0, "export_timestamp_pc", exported_at)
+            summary_export.insert(1, "export_model", selected_model)
+
+        pieces_export.to_csv(pieces_file, index=False, encoding="utf-8-sig")
+        summary_export.to_csv(summary_file, index=False, encoding="utf-8-sig")
+
+        return {
+            "ok": True,
+            "pieces_file": str(pieces_file),
+            "summary_file": str(summary_file),
+            "pieces_rows": len(pieces_export),
+            "summary_rows": len(summary_export),
+        }
+
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": str(e),
+        }
+
 
 
 def render_device_status(status_df):
@@ -244,7 +673,7 @@ def render_device_status(status_df):
 
     st.dataframe(
         status_df[available_cols],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -377,7 +806,8 @@ def make_station_torque_chart(
     )
 
     fig.update_xaxes(
-        tickformat="%H:%M<br>%b %d, %Y",
+        tickformat="%H:%M",
+        nticks=6,
     )
 
     if auto_scale:
@@ -462,7 +892,8 @@ def make_station_angle_chart(
     )
 
     fig.update_xaxes(
-        tickformat="%H:%M<br>%b %d, %Y",
+        tickformat="%H:%M",
+        nticks=6,
     )
 
     if auto_scale and "angle_actual" in station_df.columns:
@@ -514,6 +945,10 @@ def render_station_dashboard_grid(
                     station_df = df[df["device_id"] == device_id].copy()
 
                 config = config_lookup.get(device_id, {})
+                screws_per_piece = get_screws_from_config(config, config.get("running_model", ""))
+
+                if not screws_per_piece:
+                    screws_per_piece = get_screws_from_config(config, "T1XX-1") or get_screws_from_config(config, "T1XX-2")
 
                 if not station_df.empty:
                     latest = station_df.tail(1).iloc[0]
@@ -565,7 +1000,7 @@ def render_station_dashboard_grid(
 
                         st.plotly_chart(
                             torque_fig,
-                            use_container_width=True,
+                            width="stretch",
                             key=f"torque_grid_{device_id}",
                         )
 
@@ -580,9 +1015,804 @@ def render_station_dashboard_grid(
 
                             st.plotly_chart(
                                 angle_fig,
-                                use_container_width=True,
+                                width="stretch",
                                 key=f"angle_grid_{device_id}",
                             )
+
+
+def render_cycle_time_tab(cycle_base_df, devices_for_model, selected_model, export_base_df=None):
+    st.subheader("Tiempos de ciclo y piezas producidas")
+
+    if cycle_base_df.empty:
+        st.info("Todavía no hay datos para calcular piezas o tiempos de ciclo.")
+        return
+
+    pieces_df = calculate_piece_cycles(
+        cycle_base_df,
+        devices_for_model=devices_for_model,
+        selected_model=selected_model,
+    )
+
+    summary_df = calculate_cycle_summary(
+        cycle_base_df,
+        pieces_df=pieces_df,
+        devices_for_model=devices_for_model,
+        selected_model=selected_model,
+    )
+
+
+    if summary_df.empty:
+        st.warning("No se pudo calcular el resumen. Revisa que `asg_devices.csv` tenga tornillos por pieza.")
+        return
+
+    with st.expander("Guardar CSV calculados", expanded=False):
+        st.caption(
+            "Para mantener rápida esta vista, el CSV de tiempos de ciclo se guarda bajo demanda."
+        )
+
+        if st.button("Guardar CSV de tiempos de ciclo", key="save_cycle_outputs_button"):
+            save_info = save_cycle_outputs(
+                pieces_df=pieces_df,
+                summary_df=summary_df,
+                selected_model=selected_model,
+            )
+
+            if save_info.get("ok"):
+                st.success(
+                    f"CSV guardados correctamente: "
+                    f"{save_info.get('pieces_rows', 0)} piezas | "
+                    f"{save_info.get('summary_rows', 0)} estaciones."
+                )
+
+                st.code(
+                    f"""
+Piezas calculadas:
+{save_info.get("pieces_file", "")}
+
+Resumen tiempos de ciclo:
+{save_info.get("summary_file", "")}
+                    """.strip()
+                )
+            else:
+                st.error(f"No se pudieron guardar los CSV: {save_info.get('error', '')}")
+
+    valid_cycle_values = pd.Series(dtype=float)
+
+    if not pieces_df.empty and "cycle_time_sec" in pieces_df.columns:
+        valid_cycle_values = pd.to_numeric(pieces_df["cycle_time_sec"], errors="coerce").dropna()
+        valid_cycle_values = valid_cycle_values[valid_cycle_values > 0]
+
+    valid_tightening_values = pd.Series(dtype=float)
+
+    if not pieces_df.empty and "tightening_time_sec" in pieces_df.columns:
+        valid_tightening_values = pd.to_numeric(pieces_df["tightening_time_sec"], errors="coerce").dropna()
+        valid_tightening_values = valid_tightening_values[valid_tightening_values >= 0]
+
+    total_torque_results = int(summary_df["torque_results"].sum())
+    total_complete_pieces = int(summary_df["complete_pieces"].sum())
+    total_partial_screws = int(summary_df["partial_screws"].sum())
+
+    avg_cycle = valid_cycle_values.mean() if not valid_cycle_values.empty else None
+    avg_tightening = valid_tightening_values.mean() if not valid_tightening_values.empty else None
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric("Resultados torque", total_torque_results)
+    c2.metric("Piezas completas", total_complete_pieces)
+    c3.metric("Tornillos en proceso", total_partial_screws)
+    c4.metric("Tiempo ciclo promedio", fmt_seconds(avg_cycle))
+
+    c5, c6, c7, c8 = st.columns(4)
+
+    c5.metric("Tiempo atornillado prom.", fmt_seconds(avg_tightening))
+    c6.metric("Mín. ciclo", fmt_seconds(valid_cycle_values.min() if not valid_cycle_values.empty else None))
+    c7.metric("Máx. ciclo", fmt_seconds(valid_cycle_values.max() if not valid_cycle_values.empty else None))
+    c8.metric("Std ciclo", fmt_seconds(valid_cycle_values.std() if len(valid_cycle_values) > 1 else None))
+
+    st.divider()
+
+    st.markdown("### Piezas completas por estación")
+
+    bar_fig = go.Figure()
+
+    bar_fig.add_trace(
+        go.Bar(
+            x=summary_df["device_id"],
+            y=summary_df["complete_pieces"],
+            text=summary_df["complete_pieces"],
+            textposition="auto",
+            customdata=safe_customdata(
+                summary_df,
+                [
+                    "station",
+                    "process",
+                    "screws_per_piece",
+                    "torque_results",
+                    "partial_screws",
+                ],
+            ),
+            hovertemplate=(
+                "<b>%{x}</b><br>"
+                "Estación: %{customdata[0]}<br>"
+                "Proceso: %{customdata[1]}<br>"
+                "Tornillos por pieza: %{customdata[2]}<br>"
+                "Resultados torque: %{customdata[3]}<br>"
+                "Piezas completas: %{y}<br>"
+                "Tornillos en proceso: %{customdata[4]}<br>"
+                "<extra></extra>"
+            ),
+        )
+    )
+
+    bar_fig.update_layout(
+        xaxis_title="Estación",
+        yaxis_title="Piezas completas",
+        height=380,
+        margin=dict(l=10, r=10, t=30, b=10),
+    )
+
+    st.plotly_chart(
+        bar_fig,
+        width="stretch",
+        key="cycle_pieces_bar",
+    )
+
+    st.divider()
+
+    st.markdown("### Histograma de tiempos de ciclo")
+
+    if pieces_df.empty or valid_cycle_values.empty:
+        st.info("Aún no hay suficientes piezas completas para calcular tiempo de ciclo.")
+    else:
+        station_options = ["Todas"] + summary_df["device_id"].tolist()
+
+        selected_hist_station = st.selectbox(
+            "Estación para histograma",
+            station_options,
+            index=0,
+        )
+
+        hist_df = pieces_df.copy()
+
+        if selected_hist_station != "Todas":
+            hist_df = hist_df[hist_df["device_id"] == selected_hist_station]
+
+        hist_df["cycle_time_sec"] = pd.to_numeric(hist_df["cycle_time_sec"], errors="coerce")
+        hist_df = hist_df.dropna(subset=["cycle_time_sec"])
+        hist_df = hist_df[hist_df["cycle_time_sec"] > 0]
+
+        if hist_df.empty:
+            st.info("No hay tiempos de ciclo válidos para esta estación.")
+        else:
+            hist_fig = go.Figure()
+
+            hist_fig.add_trace(
+                go.Histogram(
+                    x=hist_df["cycle_time_sec"],
+                    nbinsx=20,
+                    name="Tiempo de ciclo",
+                    hovertemplate=(
+                        "Tiempo de ciclo: %{x:.1f} s<br>"
+                        "Frecuencia: %{y}<br>"
+                        "<extra></extra>"
+                    ),
+                )
+            )
+
+            title = "Distribución de tiempos de ciclo"
+
+            if selected_hist_station != "Todas":
+                title = f"Distribución de tiempos de ciclo | {selected_hist_station}"
+
+            hist_fig.update_layout(
+                title=title,
+                xaxis_title="Tiempo de ciclo (s)",
+                yaxis_title="Frecuencia",
+                height=420,
+                bargap=0.05,
+                margin=dict(l=10, r=10, t=55, b=10),
+            )
+
+            st.plotly_chart(
+                hist_fig,
+                width="stretch",
+                key="cycle_time_histogram",
+            )
+
+    st.divider()
+
+    st.markdown("### Resumen por estación")
+
+    summary_display_cols = [
+        "device_id",
+        "process",
+        "station",
+        "screws_per_piece",
+        "torque_results",
+        "complete_pieces",
+        "partial_screws",
+        "avg_cycle_time_sec_fmt",
+        "min_cycle_time_sec_fmt",
+        "max_cycle_time_sec_fmt",
+        "std_cycle_time_sec_fmt",
+        "avg_tightening_time_sec_fmt",
+    ]
+
+    summary_available_cols = [col for col in summary_display_cols if col in summary_df.columns]
+
+    st.dataframe(
+        summary_df[summary_available_cols],
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.markdown("### Piezas calculadas")
+
+    if pieces_df.empty:
+        st.info("Aún no hay piezas completas calculadas.")
+    else:
+        pieces_display = pieces_df.copy()
+
+        pieces_display["cycle_time_fmt"] = pieces_display["cycle_time_sec"].apply(fmt_seconds)
+        pieces_display["tightening_time_fmt"] = pieces_display["tightening_time_sec"].apply(fmt_seconds)
+
+        pieces_cols = [
+            "running_model",
+            "device_id",
+            "process",
+            "station",
+            "screws_per_piece",
+            "piece_number",
+            "piece_start_time",
+            "piece_end_time",
+            "cycle_time_fmt",
+            "tightening_time_fmt",
+            "piece_result",
+            "tasks_in_piece",
+            "torque_avg",
+            "torque_min_actual",
+            "torque_max_actual",
+            "screws_ok",
+            "screws_ng",
+        ]
+
+        pieces_available_cols = [col for col in pieces_cols if col in pieces_display.columns]
+
+        pieces_display = pieces_display.sort_values(
+            ["device_id", "piece_start_time"],
+            ascending=[True, False],
+        )
+
+        st.dataframe(
+            pieces_display[pieces_available_cols].head(500),
+            width="stretch",
+            hide_index=True,
+        )
+
+
+def normalize_msa_columns(df):
+    """
+    Normaliza columnas de un estudio MSA cargado por CSV.
+
+    Columnas esperadas:
+    - part_id
+    - operator
+    - trial
+    - measurement
+    """
+    df = df.copy()
+
+    rename_map = {}
+
+    for col in df.columns:
+        c = str(col).strip().lower()
+
+        if c in ["part", "part_id", "pieza", "pieza_id"]:
+            rename_map[col] = "part_id"
+        elif c in ["operator", "operador"]:
+            rename_map[col] = "operator"
+        elif c in ["trial", "repetition", "rep", "repeticion", "repetición"]:
+            rename_map[col] = "trial"
+        elif c in ["measurement", "medicion", "medición", "value", "valor", "torque"]:
+            rename_map[col] = "measurement"
+        elif c in ["station", "estacion", "estación", "device_id", "asg"]:
+            rename_map[col] = "station"
+
+    df = df.rename(columns=rename_map)
+
+    required = ["part_id", "operator", "trial", "measurement"]
+
+    missing = [col for col in required if col not in df.columns]
+
+    if missing:
+        return df, missing
+
+    df["measurement"] = pd.to_numeric(df["measurement"], errors="coerce")
+    df = df.dropna(subset=["measurement"])
+
+    df["part_id"] = df["part_id"].astype(str)
+    df["operator"] = df["operator"].astype(str)
+    df["trial"] = df["trial"].astype(str)
+
+    return df, []
+
+
+def render_msa_uploaded_study(msa_df):
+    st.markdown("### Reporte MSA desde archivo cargado")
+
+    msa_df, missing = normalize_msa_columns(msa_df)
+
+    if missing:
+        st.warning(
+            "El archivo cargado no tiene las columnas mínimas requeridas: "
+            + ", ".join(missing)
+        )
+
+        st.markdown("Formato esperado:")
+
+        st.code(
+            """
+station,part_id,operator,trial,measurement
+ASG_01,1,A,1,95.2
+ASG_01,1,A,2,95.1
+ASG_01,1,B,1,95.4
+ASG_01,1,B,2,95.3
+            """.strip()
+        )
+        return
+
+    if msa_df.empty:
+        st.info("El archivo MSA no contiene mediciones válidas.")
+        return
+
+    measurements = msa_df["measurement"]
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+
+    c1.metric("Mediciones", len(msa_df))
+    c2.metric("Partes", msa_df["part_id"].nunique())
+    c3.metric("Operadores", msa_df["operator"].nunique())
+    c4.metric("Promedio", fmt_value(measurements.mean(), 3))
+    c5.metric("Std", fmt_value(measurements.std(), 3))
+
+    st.info(
+        "Esta pestaña ya genera el layout base tipo MSA. "
+        "El cálculo Gage R&R formal por ANOVA lo agregaremos en la siguiente etapa."
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        part_mean = (
+            msa_df
+            .groupby("part_id", as_index=False)["measurement"]
+            .mean()
+            .sort_values("part_id")
+        )
+
+        fig_part = go.Figure()
+
+        fig_part.add_trace(
+            go.Scatter(
+                x=part_mean["part_id"],
+                y=part_mean["measurement"],
+                mode="lines+markers",
+                name="Promedio por parte",
+            )
+        )
+
+        fig_part.update_layout(
+            title="Measurement by Part",
+            xaxis_title="Part",
+            yaxis_title="Measurement",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_part, width="stretch", key="msa_measurement_by_part")
+
+    with col2:
+        fig_operator = go.Figure()
+
+        for operator, op_df in msa_df.groupby("operator"):
+            fig_operator.add_trace(
+                go.Box(
+                    y=op_df["measurement"],
+                    name=str(operator),
+                    boxmean=True,
+                )
+            )
+
+        fig_operator.update_layout(
+            title="Measurement by Operator",
+            xaxis_title="Operator",
+            yaxis_title="Measurement",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_operator, width="stretch", key="msa_measurement_by_operator")
+
+    col3, col4 = st.columns(2)
+
+    with col3:
+        ranges = (
+            msa_df
+            .groupby(["operator", "part_id"], as_index=False)["measurement"]
+            .agg(lambda x: x.max() - x.min())
+            .rename(columns={"measurement": "sample_range"})
+        )
+
+        fig_r = go.Figure()
+
+        for operator, op_df in ranges.groupby("operator"):
+            fig_r.add_trace(
+                go.Scatter(
+                    x=op_df["part_id"],
+                    y=op_df["sample_range"],
+                    mode="lines+markers",
+                    name=str(operator),
+                )
+            )
+
+        fig_r.update_layout(
+            title="R Chart by Operator",
+            xaxis_title="Part",
+            yaxis_title="Sample Range",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_r, width="stretch", key="msa_r_chart_operator")
+
+    with col4:
+        xbar = (
+            msa_df
+            .groupby(["operator", "part_id"], as_index=False)["measurement"]
+            .mean()
+            .rename(columns={"measurement": "sample_mean"})
+        )
+
+        fig_xbar = go.Figure()
+
+        for operator, op_df in xbar.groupby("operator"):
+            fig_xbar.add_trace(
+                go.Scatter(
+                    x=op_df["part_id"],
+                    y=op_df["sample_mean"],
+                    mode="lines+markers",
+                    name=str(operator),
+                )
+            )
+
+        fig_xbar.update_layout(
+            title="Xbar Chart by Operator",
+            xaxis_title="Part",
+            yaxis_title="Sample Mean",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_xbar, width="stretch", key="msa_xbar_chart_operator")
+
+    col5, col6 = st.columns(2)
+
+    with col5:
+        interaction = (
+            msa_df
+            .groupby(["operator", "part_id"], as_index=False)["measurement"]
+            .mean()
+            .rename(columns={"measurement": "average"})
+        )
+
+        fig_interaction = go.Figure()
+
+        for operator, op_df in interaction.groupby("operator"):
+            fig_interaction.add_trace(
+                go.Scatter(
+                    x=op_df["part_id"],
+                    y=op_df["average"],
+                    mode="lines+markers",
+                    name=str(operator),
+                )
+            )
+
+        fig_interaction.update_layout(
+            title="Part * Operator Interaction",
+            xaxis_title="Part",
+            yaxis_title="Average",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_interaction, width="stretch", key="msa_interaction_chart")
+
+    with col6:
+        # Aproximación visual inicial de componentes.
+        # No reemplaza el cálculo formal Gage R&R.
+        total_var = measurements.var()
+
+        repeat_var = (
+            msa_df
+            .groupby(["operator", "part_id"])["measurement"]
+            .var()
+            .mean()
+        )
+
+        operator_var = (
+            msa_df
+            .groupby("operator")["measurement"]
+            .mean()
+            .var()
+        )
+
+        part_var = (
+            msa_df
+            .groupby("part_id")["measurement"]
+            .mean()
+            .var()
+        )
+
+        comp_df = pd.DataFrame(
+            {
+                "component": ["Repeat", "Reprod", "Part-to-Part"],
+                "variance": [
+                    repeat_var if pd.notna(repeat_var) else 0,
+                    operator_var if pd.notna(operator_var) else 0,
+                    part_var if pd.notna(part_var) else 0,
+                ],
+            }
+        )
+
+        comp_total = comp_df["variance"].sum()
+
+        if comp_total > 0:
+            comp_df["percent"] = comp_df["variance"] / comp_total * 100
+        else:
+            comp_df["percent"] = 0
+
+        fig_components = go.Figure()
+
+        fig_components.add_trace(
+            go.Bar(
+                x=comp_df["component"],
+                y=comp_df["percent"],
+                text=comp_df["percent"].round(1).astype(str) + "%",
+                textposition="auto",
+                name="% Contribution",
+            )
+        )
+
+        fig_components.update_layout(
+            title="Components of Variation",
+            xaxis_title="Component",
+            yaxis_title="Percent",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(fig_components, width="stretch", key="msa_components_variation")
+
+    st.markdown("### Datos del estudio MSA")
+
+    st.dataframe(
+        msa_df,
+        width="stretch",
+        hide_index=True,
+    )
+
+
+def render_msa_live_exploratory(clean_df, devices_for_model, selected_model):
+    st.markdown("### MSA exploratorio con datos de producción")
+
+    st.caption(
+        "Este apartado usa la data real del ASG como análisis exploratorio. "
+        "No sustituye un Gage R&R formal con partes, operadores y repeticiones controladas."
+    )
+
+    if clean_df.empty:
+        st.info("Todavía no hay datos limpios para análisis exploratorio.")
+        return
+
+    df = clean_df.copy()
+
+    if "running_model" in df.columns:
+        df = df[df["running_model"] == selected_model]
+
+    if df.empty:
+        st.info("No hay datos para el modelo seleccionado.")
+        return
+
+    station_options = sorted(df["device_id"].dropna().unique().tolist()) if "device_id" in df.columns else []
+
+    if not station_options:
+        st.info("No hay estaciones disponibles.")
+        return
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        selected_station = st.selectbox(
+            "Estación",
+            station_options,
+            key="msa_live_station",
+        )
+
+    with c2:
+        measurement_col = st.selectbox(
+            "Variable",
+            ["torque_actual", "angle_actual"],
+            key="msa_live_measurement",
+        )
+
+    station_df = df[df["device_id"] == selected_station].copy()
+
+    task_options = ["Todas"]
+
+    if "task_label" in station_df.columns:
+        task_options += sorted(
+            [
+                str(x)
+                for x in station_df["task_label"].dropna().unique().tolist()
+                if str(x).strip()
+            ]
+        )
+
+    with c3:
+        selected_task = st.selectbox(
+            "Task / PSet",
+            task_options,
+            key="msa_live_task",
+        )
+
+    if selected_task != "Todas" and "task_label" in station_df.columns:
+        station_df = station_df[station_df["task_label"] == selected_task]
+
+    if measurement_col not in station_df.columns:
+        st.warning(f"No existe la columna {measurement_col}.")
+        return
+
+    station_df[measurement_col] = pd.to_numeric(station_df[measurement_col], errors="coerce")
+    station_df = station_df.dropna(subset=[measurement_col])
+
+    if station_df.empty:
+        st.info("No hay datos válidos para la selección actual.")
+        return
+
+    values = station_df[measurement_col]
+
+    ng_count = int((station_df["result_label"] == "NG").sum()) if "result_label" in station_df.columns else 0
+
+    m1, m2, m3, m4, m5 = st.columns(5)
+
+    m1.metric("Muestras", len(station_df))
+    m2.metric("Promedio", fmt_value(values.mean(), 3))
+    m3.metric("Std", fmt_value(values.std(), 3))
+    m4.metric("Rango", fmt_value(values.max() - values.min(), 3))
+    m5.metric("NG", ng_count)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        hist_fig = go.Figure()
+
+        hist_fig.add_trace(
+            go.Histogram(
+                x=values,
+                nbinsx=20,
+                name=measurement_col,
+                hovertemplate=(
+                    "Valor: %{x}<br>"
+                    "Frecuencia: %{y}<br>"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+        hist_fig.update_layout(
+            title=f"Distribución | {selected_station}",
+            xaxis_title=measurement_col,
+            yaxis_title="Frecuencia",
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(hist_fig, width="stretch", key="msa_live_histogram")
+
+    with col2:
+        box_fig = go.Figure()
+
+        group_col = "task_label" if "task_label" in station_df.columns else "device_id"
+
+        for group, gdf in station_df.groupby(group_col):
+            box_fig.add_trace(
+                go.Box(
+                    y=gdf[measurement_col],
+                    name=str(group),
+                    boxmean=True,
+                )
+            )
+
+        box_fig.update_layout(
+            title=f"Variación por Task / PSet | {selected_station}",
+            xaxis_title="Task / PSet",
+            yaxis_title=measurement_col,
+            height=330,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        st.plotly_chart(box_fig, width="stretch", key="msa_live_boxplot")
+
+    trend_fig = go.Figure()
+
+    x_col = "plot_timestamp" if "plot_timestamp" in station_df.columns else "pc_timestamp"
+
+    if x_col in station_df.columns:
+        station_df = station_df.sort_values(x_col)
+
+        trend_fig.add_trace(
+            go.Scatter(
+                x=station_df[x_col],
+                y=station_df[measurement_col],
+                mode="lines+markers",
+                name=measurement_col,
+            )
+        )
+
+        trend_fig.update_layout(
+            title=f"Tendencia | {selected_station}",
+            xaxis_title="Tiempo PC",
+            yaxis_title=measurement_col,
+            height=360,
+            margin=dict(l=10, r=10, t=55, b=10),
+        )
+
+        trend_fig.update_xaxes(
+            tickformat="%H:%M",
+            nticks=8,
+        )
+
+        st.plotly_chart(trend_fig, width="stretch", key="msa_live_trend")
+
+
+def render_msa_tab(clean_df, devices_for_model, selected_model):
+    st.subheader("MSA")
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.metric("Gage name", "ASG-NW2500")
+    c2.metric("Modelo", selected_model)
+    c3.metric("Versión", APP_VERSION)
+    c4.metric("Reportado por", "Ing. Oswaldo Cantú")
+
+    st.markdown(
+        """
+        Esta pestaña queda preparada para dos usos:
+
+        1. **MSA exploratorio:** usa los datos reales de producción.
+        2. **MSA formal:** permite cargar un CSV con partes, operadores y repeticiones.
+        """
+    )
+
+    uploaded = st.file_uploader(
+        "Cargar CSV de estudio MSA formal",
+        type=["csv"],
+        key="msa_csv_uploader",
+    )
+
+    if uploaded is not None:
+        try:
+            msa_df = pd.read_csv(uploaded)
+            render_msa_uploaded_study(msa_df)
+        except Exception as e:
+            st.error(f"No se pudo leer el archivo MSA: {e}")
+    else:
+        render_msa_live_exploratory(
+            clean_df=clean_df,
+            devices_for_model=devices_for_model,
+            selected_model=selected_model,
+        )
+
 
 
 def render_results_table(df):
@@ -622,11 +1852,16 @@ def render_results_table(df):
 
     available_cols = [col for col in display_cols if col in df.columns]
 
-    table_df = df[available_cols].tail(200).sort_index(ascending=False)
+    table_df = df[available_cols].tail(200)
+
+    if "plot_timestamp" in table_df.columns:
+        table_df = table_df.sort_values("plot_timestamp", ascending=False)
+    else:
+        table_df = table_df.sort_index(ascending=False)
 
     st.dataframe(
         table_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -636,7 +1871,7 @@ def render_config_tab():
 
     try:
         config_df = get_enabled_devices()
-        st.dataframe(config_df, use_container_width=True, hide_index=True)
+        st.dataframe(config_df, width="stretch", hide_index=True)
     except Exception as e:
         st.error(f"No se pudo leer config/asg_devices.csv: {e}")
 
@@ -680,6 +1915,14 @@ def render_about_tab():
         - La hora interna del ASG se conserva como **timestamp_asg** en tabla y hover.
         - Esto evita diferencias cuando una estación ASG tiene una hora interna distinta.
 
+        **Cálculo de piezas y tiempos de ciclo:**
+
+        - Cada estación tiene configurada su cantidad de tornillos por pieza.
+        - Las piezas completas se calculan agrupando resultados de torque.
+        - El tiempo de ciclo se calcula entre el inicio de una pieza y el inicio de la siguiente.
+        - El tiempo de atornillado se calcula entre el primer y último tornillo de la misma pieza.
+        - Los cálculos se pueden guardar en CSV desde la pestaña Tiempos de ciclo.
+
         **Modelos soportados:**
 
         - T1XX-1
@@ -693,6 +1936,12 @@ def render_about_tab():
         - SQLite por estación
         - Logs de conexión
         - Dashboard Streamlit
+        - Pestaña MSA base
+        - Auto-refresh no bloqueante
+        - Sesiones de conteo de producción por modelo
+        - Guardado manual optimizado de tiempos de ciclo
+        - Tabla de datos en vivo
+        - Renderizado por vista activa para evitar recálculo innecesario
         """
     )
 
@@ -715,12 +1964,40 @@ def main():
     st.caption("Dashboard multi-IP para ASG-NW2500 / Open Protocol")
 
     with st.sidebar:
+        st.header("Vista")
+
+        selected_page = st.radio(
+            "Selecciona vista",
+            [
+                "Vista general",
+                "Dashboard por estación",
+                "Tiempos de ciclo",
+                "MSA",
+                "Tabla de datos",
+                "Configuración",
+                "Acerca del sistema",
+            ],
+            index=0,
+        )
+
+        st.divider()
+
         st.header("Controles")
 
         selected_model = st.radio(
             "Modelo de corrida",
             ["T1XX-1", "T1XX-2"],
             index=0,
+        )
+
+        count_scope = st.radio(
+            "Conteo de piezas",
+            ["Sesión actual", "Todo el día"],
+            index=0,
+        )
+
+        st.caption(
+            "La sesión actual se define al iniciar el colector."
         )
 
         try:
@@ -753,6 +2030,19 @@ def main():
             step=10,
         )
 
+        time_window_option = st.selectbox(
+            "Ventana de tiempo en vivo",
+            [
+                "Últimos 15 min",
+                "Últimos 30 min",
+                "Últimos 60 min",
+                "Todo el día",
+            ],
+            index=1,
+        )
+
+        time_window_minutes = get_time_window_minutes(time_window_option)
+
         st.divider()
         st.markdown("### Gráficas")
 
@@ -784,37 +2074,53 @@ def main():
         st.divider()
 
         auto_refresh = st.checkbox("Auto refresh", value=True)
-        refresh_seconds = st.slider("Refresh segundos", 2, 30, 5)
+        refresh_seconds = st.slider("Refresh segundos", 1, 30, 1)
 
     status_payload = load_status()
     status_df = status_to_dataframe(status_payload)
 
     clean_df = load_clean_data()
 
+    session_payload = load_session_state()
+    active_session_info = get_active_session_info(session_payload, selected_model)
+
+    clean_df_for_view = apply_count_scope(
+        df=clean_df,
+        selected_model=selected_model,
+        count_scope=count_scope,
+        session_payload=session_payload,
+    )
+
+    if count_scope == "Sesión actual":
+        session_id = active_session_info.get("production_session_id", "")
+        session_start = active_session_info.get("production_session_started_at", "")
+
+        if session_id:
+            st.caption(f"Conteo activo: {session_id} | Inicio: {session_start}")
+        else:
+            st.caption("No hay sesión activa registrada. Inicia el colector para crear una sesión.")
+
     filtered_df = filter_data(
-        clean_df,
+        clean_df_for_view,
         selected_model=selected_model,
         selected_devices=selected_devices,
         selected_result=selected_result,
         last_n=last_n,
+        time_window_minutes=time_window_minutes,
     )
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
-        [
-            "Vista general",
-            "Dashboard por estación",
-            "Tabla de datos",
-            "Configuración",
-            "Acerca del sistema",
-        ]
-    )
+    live_pages = [
+        "Vista general",
+        "Dashboard por estación",
+        "Tabla de datos",
+    ]
 
-    with tab1:
+    if selected_page == "Vista general":
         render_device_status(status_df)
         st.divider()
         render_summary_metrics(filtered_df)
 
-    with tab2:
+    elif selected_page == "Dashboard por estación":
         render_station_dashboard_grid(
             filtered_df,
             selected_devices=selected_devices,
@@ -827,18 +2133,56 @@ def main():
             chart_height=station_chart_height,
         )
 
-    with tab3:
+    elif selected_page == "Tiempos de ciclo":
+        cycle_base_df = filter_cycle_base_data(
+            clean_df,
+            selected_model=selected_model,
+            selected_devices=selected_devices,
+            last_n=last_n,
+            time_window_minutes=time_window_minutes,
+        )
+
+        cycle_export_base_df = filter_cycle_base_data(
+            clean_df,
+            selected_model=selected_model,
+            selected_devices=device_options,
+            last_n=0,
+            time_window_minutes=None,
+        )
+
+        render_cycle_time_tab(
+            cycle_base_df=cycle_base_df,
+            devices_for_model=devices_for_model,
+            selected_model=selected_model,
+        )
+
+    elif selected_page == "MSA":
+        render_msa_tab(
+            clean_df=clean_df_for_view,
+            devices_for_model=devices_for_model,
+            selected_model=selected_model,
+        )
+
+    elif selected_page == "Tabla de datos":
         render_results_table(filtered_df)
 
-    with tab4:
+    elif selected_page == "Configuración":
         render_config_tab()
 
-    with tab5:
+    elif selected_page == "Acerca del sistema":
         render_about_tab()
 
-    if auto_refresh:
-        time.sleep(refresh_seconds)
-        st.rerun()
+    if auto_refresh and selected_page in live_pages:
+        st_autorefresh(
+            interval=refresh_seconds * 1000,
+            key="asg_dashboard_autorefresh",
+        )
+
+    elif auto_refresh and selected_page not in live_pages:
+        st.caption(
+            "Auto-refresh pausado en esta vista para evitar el efecto nublado. "
+            "El auto-refresh solo queda activo en Vista general, Dashboard por estación y Tabla de datos."
+        )
 
 
 if __name__ == "__main__":

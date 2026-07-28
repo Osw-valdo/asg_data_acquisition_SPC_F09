@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\config\asg_devices.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\processed\asg_clean_master_2026-07-14.csv">
           <value>
             <Attribute>
@@ -32,6 +39,27 @@
           </value>
         </entry>
         <entry key="\data\processed\asg_clean_master_2026-07-24.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\processed\asg_clean_master_2026-07-28.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\processed\asg_cycle_summary_T1XX-1_2026-07-28.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\processed\asg_piece_cycles_T1XX-1_2026-07-28.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
