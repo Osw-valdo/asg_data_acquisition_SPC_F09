@@ -1,6 +1,5 @@
 from pathlib import Path
 from datetime import datetime
-from streamlit_autorefresh import st_autorefresh
 import json
 import time
 
@@ -18,7 +17,7 @@ PROCESSED_DIR = DATA_DIR / "processed"
 LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
-APP_VERSION = "v0.3"
+APP_VERSION = "v0.3.1"
 
 
 st.set_page_config(
@@ -30,6 +29,15 @@ st.set_page_config(
 
 def today_str():
     return datetime.now().strftime("%Y-%m-%d")
+
+
+def fmt_value(value, decimals=2):
+    try:
+        if pd.isna(value):
+            return ""
+        return f"{float(value):.{decimals}f}"
+    except Exception:
+        return str(value)
 
 
 @st.cache_data(ttl=2)
@@ -56,11 +64,26 @@ def load_clean_data():
     except Exception:
         return pd.DataFrame()
 
+    # Convertimos ambos tiempos, pero para graficar usaremos pc_timestamp.
+    # timestamp_asg se conserva como trazabilidad.
     if "timestamp_asg" in df.columns:
         df["timestamp_asg"] = pd.to_datetime(df["timestamp_asg"], errors="coerce")
 
     if "pc_timestamp" in df.columns:
         df["pc_timestamp"] = pd.to_datetime(df["pc_timestamp"], errors="coerce")
+
+    # Timestamp oficial para gráficas:
+    # 1) pc_timestamp como principal
+    # 2) timestamp_asg solo como respaldo si pc_timestamp viene vacío
+    if "pc_timestamp" in df.columns:
+        df["plot_timestamp"] = df["pc_timestamp"]
+    elif "timestamp_asg" in df.columns:
+        df["plot_timestamp"] = df["timestamp_asg"]
+    else:
+        df["plot_timestamp"] = pd.NaT
+
+    if "timestamp_asg" in df.columns:
+        df["plot_timestamp"] = df["plot_timestamp"].fillna(df["timestamp_asg"])
 
     numeric_cols = [
         "torque_min",
@@ -79,6 +102,42 @@ def load_clean_data():
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
+    # Columna visual:
+    # El ASG puede mandar NOK, pero en piso lo mostraremos como NG.
+    if "tightening_status" in df.columns:
+        df["result_label"] = df["tightening_status"].replace({"NOK": "NG"})
+    else:
+        df["result_label"] = ""
+
+    # Columna visual de tarea:
+    # Se forma usando job_id y parameter_set_id.
+    def build_task_label(row):
+        job = str(row.get("job_id", "")).strip()
+        pset = row.get("parameter_set_id", "")
+
+        if job.lower() in ["nan", "none"]:
+            job = ""
+
+        try:
+            if pd.notna(pset):
+                pset = str(int(float(pset))).zfill(3)
+            else:
+                pset = ""
+        except Exception:
+            pset = str(pset).strip()
+
+        parts = []
+
+        if job:
+            parts.append(f"Job {job}")
+
+        if pset:
+            parts.append(f"PSet {pset}")
+
+        return " | ".join(parts)
+
+    df["task_label"] = df.apply(build_task_label, axis=1)
+
     return df
 
 
@@ -89,6 +148,7 @@ def status_to_dataframe(status_payload):
         return pd.DataFrame()
 
     rows = []
+
     for _, info in devices.items():
         rows.append(info)
 
@@ -117,16 +177,26 @@ def filter_data(df, selected_model, selected_devices, selected_result, last_n):
     if selected_devices and "device_id" in filtered.columns:
         filtered = filtered[filtered["device_id"].isin(selected_devices)]
 
-    if selected_result != "Todos" and "tightening_status" in filtered.columns:
-        filtered = filtered[filtered["tightening_status"] == selected_result]
+    if selected_result != "Todos" and "result_label" in filtered.columns:
+        filtered = filtered[filtered["result_label"] == selected_result]
 
-    sort_col = "timestamp_asg" if "timestamp_asg" in filtered.columns else "pc_timestamp"
+    sort_col = "plot_timestamp" if "plot_timestamp" in filtered.columns else "pc_timestamp"
 
     if sort_col in filtered.columns:
         filtered = filtered.sort_values(sort_col)
 
-    if last_n > 0:
+    # Tomar últimos N resultados por estación, no globalmente.
+    if last_n > 0 and "device_id" in filtered.columns:
+        filtered = (
+            filtered
+            .groupby("device_id", group_keys=False)
+            .tail(last_n)
+        )
+    elif last_n > 0:
         filtered = filtered.tail(last_n)
+
+    if sort_col in filtered.columns:
+        filtered = filtered.sort_values(sort_col)
 
     return filtered
 
@@ -148,6 +218,7 @@ def render_device_status(status_df):
     col3.metric("Desconectados", total_count - connected_count)
 
     total_results = 0
+
     if "total_results" in status_df.columns:
         total_results = pd.to_numeric(status_df["total_results"], errors="coerce").fillna(0).sum()
 
@@ -188,11 +259,11 @@ def render_summary_metrics(df):
     total = len(df)
 
     ok_count = 0
-    nok_count = 0
+    ng_count = 0
 
-    if "tightening_status" in df.columns:
-        ok_count = int((df["tightening_status"] == "OK").sum())
-        nok_count = int((df["tightening_status"] == "NOK").sum())
+    if "result_label" in df.columns:
+        ok_count = int((df["result_label"] == "OK").sum())
+        ng_count = int((df["result_label"] == "NG").sum())
 
     ok_pct = (ok_count / total * 100) if total else 0
 
@@ -200,7 +271,7 @@ def render_summary_metrics(df):
 
     col1.metric("Resultados filtrados", total)
     col2.metric("OK", ok_count)
-    col3.metric("NOK", nok_count)
+    col3.metric("NG", ng_count)
     col4.metric("% OK", f"{ok_pct:.1f}%")
 
     last_row = df.tail(1)
@@ -209,155 +280,25 @@ def render_summary_metrics(df):
         row = last_row.iloc[0]
 
         st.markdown("### Último resultado")
-        c1, c2, c3, c4, c5 = st.columns(5)
+
+        c1, c2, c3, c4, c5, c6 = st.columns(6)
 
         c1.metric("ASG", row.get("device_id", ""))
         c2.metric("Proceso", row.get("process", ""))
-        c3.metric("Torque", row.get("torque_actual", ""))
-        c4.metric("Ángulo", row.get("angle_actual", ""))
-        c5.metric("Resultado", row.get("tightening_status", ""))
+        c3.metric("Torque", fmt_value(row.get("torque_actual", ""), 2))
+        c4.metric("Ángulo", fmt_value(row.get("angle_actual", ""), 0))
+        c5.metric("Resultado", row.get("result_label", ""))
+        c6.metric("Task", row.get("task_label", ""))
 
 
-def make_torque_chart(df, show_markers=True, show_limits=True, auto_scale=True):
-    fig = go.Figure()
-
-    if df.empty or "device_id" not in df.columns:
-        return fig
-
-    x_col = "timestamp_asg" if "timestamp_asg" in df.columns else "pc_timestamp"
-    mode = "lines+markers" if show_markers else "lines"
-
-    for device_id, group in df.groupby("device_id"):
-        fig.add_trace(
-            go.Scatter(
-                x=group[x_col],
-                y=group["torque_actual"],
-                mode=mode,
-                name=f"{device_id} torque",
-                customdata=safe_customdata(
-                    group,
-                    [
-                        "station",
-                        "process",
-                        "tightening_status",
-                        "torque_status",
-                        "angle_status",
-                        "tightening_id",
-                    ],
-                ),
-                hovertemplate=(
-                    "<b>%{customdata[0]}</b><br>"
-                    "Proceso: %{customdata[1]}<br>"
-                    "Torque: %{y}<br>"
-                    "ASG: %{customdata[2]}<br>"
-                    "Torque status: %{customdata[3]}<br>"
-                    "Angle status: %{customdata[4]}<br>"
-                    "Tightening ID: %{customdata[5]}<br>"
-                    "<extra></extra>"
-                ),
-            )
-        )
-
-    if show_limits:
-        for col, label in [
-            ("torque_min", "Torque min"),
-            ("torque_target", "Torque target"),
-            ("torque_max", "Torque max"),
-        ]:
-            if col in df.columns and df[col].notna().any():
-                fig.add_trace(
-                    go.Scatter(
-                        x=df[x_col],
-                        y=df[col],
-                        mode="lines",
-                        name=label,
-                        line=dict(dash="dash"),
-                    )
-                )
-
-    fig.update_layout(
-        title="Torque en vivo - Vista general",
-        xaxis_title="Tiempo",
-        yaxis_title="Torque",
-        hovermode="x unified",
-        legend_title="Serie",
-        height=520,
-    )
-
-    if auto_scale:
-        values = []
-
-        for col in ["torque_actual", "torque_min", "torque_target", "torque_max"]:
-            if col in df.columns:
-                values.extend(df[col].dropna().tolist())
-
-        if values:
-            y_min = min(values)
-            y_max = max(values)
-            padding = max((y_max - y_min) * 0.15, 1)
-            fig.update_yaxes(range=[y_min - padding, y_max + padding])
-
-    return fig
-
-
-def make_angle_chart(df, show_markers=True, auto_scale=True):
-    fig = go.Figure()
-
-    if df.empty or "device_id" not in df.columns:
-        return fig
-
-    x_col = "timestamp_asg" if "timestamp_asg" in df.columns else "pc_timestamp"
-    mode = "lines+markers" if show_markers else "lines"
-
-    for device_id, group in df.groupby("device_id"):
-        fig.add_trace(
-            go.Scatter(
-                x=group[x_col],
-                y=group["angle_actual"],
-                mode=mode,
-                name=f"{device_id} angle",
-                customdata=safe_customdata(
-                    group,
-                    [
-                        "station",
-                        "process",
-                        "tightening_status",
-                        "tightening_id",
-                    ],
-                ),
-                hovertemplate=(
-                    "<b>%{customdata[0]}</b><br>"
-                    "Proceso: %{customdata[1]}<br>"
-                    "Ángulo: %{y}<br>"
-                    "ASG: %{customdata[2]}<br>"
-                    "Tightening ID: %{customdata[3]}<br>"
-                    "<extra></extra>"
-                ),
-            )
-        )
-
-    fig.update_layout(
-        title="Ángulo en vivo - Vista general",
-        xaxis_title="Tiempo",
-        yaxis_title="Ángulo",
-        hovermode="x unified",
-        legend_title="Serie",
-        height=520,
-    )
-
-    if auto_scale and "angle_actual" in df.columns:
-        values = df["angle_actual"].dropna().tolist()
-
-        if values:
-            y_min = min(values)
-            y_max = max(values)
-            padding = max((y_max - y_min) * 0.15, 5)
-            fig.update_yaxes(range=[y_min - padding, y_max + padding])
-
-    return fig
-
-
-def make_station_torque_chart(df, device_id, show_markers=True, show_limits=True, auto_scale=True, chart_height=330):
+def make_station_torque_chart(
+    df,
+    device_id,
+    show_markers=True,
+    show_limits=True,
+    auto_scale=True,
+    chart_height=330,
+):
     fig = go.Figure()
 
     if df.empty or "device_id" not in df.columns:
@@ -368,10 +309,9 @@ def make_station_torque_chart(df, device_id, show_markers=True, show_limits=True
     if station_df.empty:
         return fig
 
-    x_col = "timestamp_asg" if "timestamp_asg" in station_df.columns else "pc_timestamp"
+    x_col = "plot_timestamp" if "plot_timestamp" in station_df.columns else "pc_timestamp"
     mode = "lines+markers" if show_markers else "lines"
 
-    station_name = station_df["station"].iloc[-1] if "station" in station_df.columns else device_id
     process = station_df["process"].iloc[-1] if "process" in station_df.columns else ""
 
     fig.add_trace(
@@ -383,21 +323,27 @@ def make_station_torque_chart(df, device_id, show_markers=True, show_limits=True
             customdata=safe_customdata(
                 station_df,
                 [
-                    "tightening_status",
+                    "result_label",
                     "torque_status",
                     "angle_status",
                     "tightening_id",
                     "parameter_set_id",
+                    "task_label",
+                    "timestamp_asg",
+                    "pc_timestamp",
                 ],
             ),
             hovertemplate=(
                 "<b>Torque actual</b><br>"
+                "Hora PC: %{customdata[7]}<br>"
+                "Hora ASG: %{customdata[6]}<br>"
                 "Torque: %{y}<br>"
-                "ASG: %{customdata[0]}<br>"
+                "Resultado: %{customdata[0]}<br>"
                 "Torque status: %{customdata[1]}<br>"
                 "Angle status: %{customdata[2]}<br>"
                 "Tightening ID: %{customdata[3]}<br>"
                 "Parameter Set: %{customdata[4]}<br>"
+                "Task: %{customdata[5]}<br>"
                 "<extra></extra>"
             ),
         )
@@ -422,12 +368,16 @@ def make_station_torque_chart(df, device_id, show_markers=True, show_limits=True
 
     fig.update_layout(
         title=f"{device_id} | {process} | Torque",
-        xaxis_title="Tiempo",
+        xaxis_title="Tiempo PC",
         yaxis_title="Torque",
         hovermode="x unified",
         legend_title="Serie",
         height=chart_height,
         margin=dict(l=10, r=10, t=55, b=10),
+    )
+
+    fig.update_xaxes(
+        tickformat="%H:%M<br>%b %d, %Y",
     )
 
     if auto_scale:
@@ -446,7 +396,13 @@ def make_station_torque_chart(df, device_id, show_markers=True, show_limits=True
     return fig
 
 
-def make_station_angle_chart(df, device_id, show_markers=True, auto_scale=True, chart_height=300):
+def make_station_angle_chart(
+    df,
+    device_id,
+    show_markers=True,
+    auto_scale=True,
+    chart_height=300,
+):
     fig = go.Figure()
 
     if df.empty or "device_id" not in df.columns:
@@ -457,7 +413,7 @@ def make_station_angle_chart(df, device_id, show_markers=True, auto_scale=True, 
     if station_df.empty:
         return fig
 
-    x_col = "timestamp_asg" if "timestamp_asg" in station_df.columns else "pc_timestamp"
+    x_col = "plot_timestamp" if "plot_timestamp" in station_df.columns else "pc_timestamp"
     mode = "lines+markers" if show_markers else "lines"
 
     process = station_df["process"].iloc[-1] if "process" in station_df.columns else ""
@@ -471,19 +427,25 @@ def make_station_angle_chart(df, device_id, show_markers=True, auto_scale=True, 
             customdata=safe_customdata(
                 station_df,
                 [
-                    "tightening_status",
+                    "result_label",
                     "angle_status",
                     "tightening_id",
                     "parameter_set_id",
+                    "task_label",
+                    "timestamp_asg",
+                    "pc_timestamp",
                 ],
             ),
             hovertemplate=(
                 "<b>Ángulo actual</b><br>"
+                "Hora PC: %{customdata[6]}<br>"
+                "Hora ASG: %{customdata[5]}<br>"
                 "Ángulo: %{y}<br>"
-                "ASG: %{customdata[0]}<br>"
+                "Resultado: %{customdata[0]}<br>"
                 "Angle status: %{customdata[1]}<br>"
                 "Tightening ID: %{customdata[2]}<br>"
                 "Parameter Set: %{customdata[3]}<br>"
+                "Task: %{customdata[4]}<br>"
                 "<extra></extra>"
             ),
         )
@@ -491,12 +453,16 @@ def make_station_angle_chart(df, device_id, show_markers=True, auto_scale=True, 
 
     fig.update_layout(
         title=f"{device_id} | {process} | Ángulo",
-        xaxis_title="Tiempo",
+        xaxis_title="Tiempo PC",
         yaxis_title="Ángulo",
         hovermode="x unified",
         legend_title="Serie",
         height=chart_height,
         margin=dict(l=10, r=10, t=55, b=10),
+    )
+
+    fig.update_xaxes(
+        tickformat="%H:%M<br>%b %d, %Y",
     )
 
     if auto_scale and "angle_actual" in station_df.columns:
@@ -555,9 +521,10 @@ def render_station_dashboard_grid(
                     station_name = latest.get("station", config.get("station", ""))
                     module_name = latest.get("module_name", config.get("module_name", ""))
                     process = latest.get("process", config.get("process", ""))
-                    torque_actual = latest.get("torque_actual", "")
-                    angle_actual = latest.get("angle_actual", "")
-                    result = latest.get("tightening_status", "")
+                    torque_actual = fmt_value(latest.get("torque_actual", ""), 2)
+                    angle_actual = fmt_value(latest.get("angle_actual", ""), 0)
+                    result = latest.get("result_label", "")
+                    task_label = latest.get("task_label", "")
                     torque_unit = latest.get("torque_unit", config.get("torque_unit", ""))
                     results_count = len(station_df)
                 else:
@@ -567,6 +534,7 @@ def render_station_dashboard_grid(
                     torque_actual = "Sin datos"
                     angle_actual = "Sin datos"
                     result = "Sin datos"
+                    task_label = "Sin datos"
                     torque_unit = config.get("torque_unit", "")
                     results_count = 0
 
@@ -575,10 +543,13 @@ def render_station_dashboard_grid(
                     st.caption(f"{station_name} | Módulo: {module_name}")
 
                     m1, m2, m3, m4 = st.columns(4)
+
                     m1.metric("Torque", f"{torque_actual} {torque_unit}")
                     m2.metric("Ángulo", angle_actual)
                     m3.metric("Resultado", result)
                     m4.metric("Ciclos", results_count)
+
+                    st.caption(f"Task actual: {task_label}")
 
                     if station_df.empty:
                         st.info("Sin resultados para esta estación en la selección actual.")
@@ -622,6 +593,7 @@ def render_results_table(df):
         return
 
     display_cols = [
+        "plot_timestamp",
         "timestamp_asg",
         "pc_timestamp",
         "running_model",
@@ -630,7 +602,9 @@ def render_results_table(df):
         "module_name",
         "process",
         "station_type",
+        "job_id",
         "parameter_set_id",
+        "task_label",
         "torque_min",
         "torque_target",
         "torque_max",
@@ -640,6 +614,7 @@ def render_results_table(df):
         "angle_max",
         "angle_actual",
         "tightening_status",
+        "result_label",
         "torque_status",
         "angle_status",
         "tightening_id",
@@ -666,6 +641,7 @@ def render_config_tab():
         st.error(f"No se pudo leer config/asg_devices.csv: {e}")
 
     st.subheader("Archivos usados")
+
     st.code(
         f"""
 Status JSON:
@@ -680,11 +656,11 @@ Carpeta de datos:
     )
 
 
-
 def render_about_tab():
     st.subheader("Acerca del sistema")
 
     c1, c2, c3, c4 = st.columns(4)
+
     c1.metric("Proyecto", "ASG SPC F09")
     c2.metric("Versión", APP_VERSION)
     c3.metric("Línea", "F09")
@@ -697,6 +673,12 @@ def render_about_tab():
 
         **Objetivo principal:** generar trazabilidad automática de resultados de atornillado
         por estación, proceso, modelo de corrida e IP.
+
+        **Criterio de tiempo usado en gráficas:**
+
+        - La gráfica usa **pc_timestamp** como eje de tiempo principal.
+        - La hora interna del ASG se conserva como **timestamp_asg** en tabla y hover.
+        - Esto evita diferencias cuando una estación ASG tiene una hora interna distinta.
 
         **Modelos soportados:**
 
@@ -712,11 +694,14 @@ def render_about_tab():
         - Logs de conexión
         - Dashboard Streamlit
         """
+    )
+
+    st.markdown(
         """
-         **Autor:** Ing. Oswaldo Cantú Casillas  
-         **Área:** Ingeniería / Soporte a producción  
-         **Línea:** F09
-         """
+        **Autor:** Ing. Oswaldo Cantú Casillas  
+        **Área:** Ingeniería / Soporte a producción  
+        **Línea:** F09
+        """
     )
 
     st.info(
@@ -745,6 +730,7 @@ def main():
             devices_for_model = pd.DataFrame()
 
         device_options = []
+
         if not devices_for_model.empty:
             device_options = devices_for_model["device_id"].tolist()
 
@@ -756,11 +742,11 @@ def main():
 
         selected_result = st.selectbox(
             "Resultado",
-            ["Todos", "OK", "NOK"],
+            ["Todos", "OK", "NG"],
         )
 
         last_n = st.slider(
-            "Últimos N resultados",
+            "Últimos N resultados por estación",
             min_value=10,
             max_value=1000,
             value=200,
@@ -813,10 +799,9 @@ def main():
         last_n=last_n,
     )
 
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
         [
             "Vista general",
-            "Gráficas fusionadas",
             "Dashboard por estación",
             "Tabla de datos",
             "Configuración",
@@ -830,30 +815,6 @@ def main():
         render_summary_metrics(filtered_df)
 
     with tab2:
-        st.subheader("Gráficas fusionadas")
-
-        st.plotly_chart(
-            make_torque_chart(
-                filtered_df,
-                show_markers=show_markers,
-                show_limits=show_limits,
-                auto_scale=auto_scale,
-            ),
-            use_container_width=True,
-            key="general_torque_chart",
-        )
-
-        st.plotly_chart(
-            make_angle_chart(
-                filtered_df,
-                show_markers=show_markers,
-                auto_scale=auto_scale,
-            ),
-            use_container_width=True,
-            key="general_angle_chart",
-        )
-
-    with tab3:
         render_station_dashboard_grid(
             filtered_df,
             selected_devices=selected_devices,
@@ -866,20 +827,18 @@ def main():
             chart_height=station_chart_height,
         )
 
-    with tab4:
+    with tab3:
         render_results_table(filtered_df)
 
-    with tab5:
+    with tab4:
         render_config_tab()
 
-    with tab6:
+    with tab5:
         render_about_tab()
 
     if auto_refresh:
-        st_autorefresh(
-            interval=refresh_seconds * 1000,
-            key="asg_dashboard_autorefresh",
-        )
+        time.sleep(refresh_seconds)
+        st.rerun()
 
 
 if __name__ == "__main__":
