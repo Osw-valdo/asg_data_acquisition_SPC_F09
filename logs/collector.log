@@ -372647,3 +372647,1294 @@ ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una con
 2026-07-28 15:45:55,543 | INFO | ASG_02 | ASG_02 conectado
 2026-07-28 15:45:55,556 | INFO | ASG_06 | ASG_06 conectado
 2026-07-28 15:45:55,568 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 15:53:07,557 | INFO | writer | Writer iniciado
+2026-07-28 15:53:07,558 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-28 15:53:07,559 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-28 15:53:07,560 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-28 15:53:07,561 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-28 15:53:07,562 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-28 15:53:07,562 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-28 15:53:07,656 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 15:53:07,675 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 15:53:07,690 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 15:53:07,703 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 15:53:07,715 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 15:53:07,724 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 17:01:51,476 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:51,476 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:51,477 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:51,477 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:51,477 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:51,477 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:01:56,654 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 17:01:56,799 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 17:01:56,868 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 17:01:56,940 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 17:01:56,958 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 17:01:56,975 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 17:02:27,162 | ERROR | ASG_06 | ASG_06 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:27,324 | ERROR | ASG_05 | ASG_05 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:27,391 | ERROR | ASG_02 | ASG_02 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:27,461 | ERROR | ASG_07 | ASG_07 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:27,486 | ERROR | ASG_04 | ASG_04 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:27,497 | ERROR | ASG_01 | ASG_01 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-28 17:02:32,200 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 17:02:32,418 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 17:02:32,455 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 17:02:32,524 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 17:02:32,585 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 17:02:32,605 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 17:32:34,358 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:32:34,360 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:32:34,360 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:32:34,361 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:32:34,362 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 17:32:34,363 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-28 18:04:45,189 | ERROR | ASG_06 | ASG_06 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-28 18:04:45,264 | ERROR | ASG_07 | ASG_07 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-28 18:04:45,307 | ERROR | ASG_05 | ASG_05 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-28 18:04:45,402 | ERROR | ASG_04 | ASG_04 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-28 18:04:45,453 | ERROR | ASG_01 | ASG_01 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-28 18:04:45,517 | ERROR | ASG_02 | ASG_02 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-28 18:04:50,576 | INFO | ASG_06 | ASG_06 conectado
+2026-07-28 18:04:50,754 | INFO | ASG_07 | ASG_07 conectado
+2026-07-28 18:04:50,770 | INFO | ASG_05 | ASG_05 conectado
+2026-07-28 18:04:50,780 | INFO | ASG_01 | ASG_01 conectado
+2026-07-28 18:04:50,790 | INFO | ASG_04 | ASG_04 conectado
+2026-07-28 18:04:50,799 | INFO | ASG_02 | ASG_02 conectado
+2026-07-28 18:04:51,256 | ERROR | ASG_07 | ASG_07 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 411, in device_worker
+    subscribe_tightening_results(sock)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 122, in subscribe_tightening_results
+    send_mid(sock, "0060", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-28 18:04:51,271 | ERROR | ASG_05 | ASG_05 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 411, in device_worker
+    subscribe_tightening_results(sock)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 122, in subscribe_tightening_results
+    send_mid(sock, "0060", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-28 18:04:51,281 | ERROR | ASG_01 | ASG_01 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 411, in device_worker
+    subscribe_tightening_results(sock)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 122, in subscribe_tightening_results
+    send_mid(sock, "0060", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-28 18:04:51,291 | ERROR | ASG_04 | ASG_04 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 411, in device_worker
+    subscribe_tightening_results(sock)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 122, in subscribe_tightening_results
+    send_mid(sock, "0060", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-28 18:04:51,300 | ERROR | ASG_02 | ASG_02 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 411, in device_worker
+    subscribe_tightening_results(sock)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 122, in subscribe_tightening_results
+    send_mid(sock, "0060", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-29 07:41:15,510 | ERROR | ASG_06 | ASG_06 error: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host
+2026-07-29 07:41:18,107 | ERROR | ASG_02 | ASG_02 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:18,299 | ERROR | ASG_05 | ASG_05 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:18,301 | ERROR | ASG_04 | ASG_04 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:18,375 | ERROR | ASG_07 | ASG_07 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:21,417 | ERROR | ASG_01 | ASG_01 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:22,209 | ERROR | ASG_06 | ASG_06 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:23,511 | ERROR | ASG_02 | ASG_02 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:23,674 | ERROR | ASG_05 | ASG_05 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:23,783 | ERROR | ASG_04 | ASG_04 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:24,030 | ERROR | ASG_07 | ASG_07 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:26,939 | ERROR | ASG_01 | ASG_01 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:27,677 | ERROR | ASG_06 | ASG_06 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-29 07:41:29,343 | INFO | ASG_02 | ASG_02 conectado
+2026-07-29 07:41:29,358 | INFO | ASG_05 | ASG_05 conectado
+2026-07-29 07:41:29,385 | INFO | ASG_07 | ASG_07 conectado
+2026-07-29 07:41:29,401 | INFO | ASG_04 | ASG_04 conectado
+2026-07-29 07:41:32,205 | INFO | ASG_01 | ASG_01 conectado
+2026-07-29 07:41:32,983 | INFO | ASG_06 | ASG_06 conectado
+2026-07-29 07:41:54,711 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:41:54,713 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:41:59,914 | INFO | ASG_06 | ASG_06 conectado
+2026-07-29 07:41:59,980 | INFO | ASG_01 | ASG_01 conectado
+2026-07-29 07:42:30,435 | ERROR | ASG_06 | ASG_06 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-29 07:42:30,500 | ERROR | ASG_01 | ASG_01 error: El ASG cerró la conexión.
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 430, in device_worker
+    raise ConnectionError("El ASG cerró la conexión.")
+ConnectionError: El ASG cerró la conexión.
+2026-07-29 07:42:35,462 | INFO | ASG_06 | ASG_06 conectado
+2026-07-29 07:42:35,525 | INFO | ASG_01 | ASG_01 conectado
+2026-07-29 07:43:16,360 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:43:16,363 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:43:21,490 | INFO | ASG_01 | ASG_01 conectado
+2026-07-29 07:43:21,595 | INFO | ASG_06 | ASG_06 conectado
+2026-07-29 07:43:47,592 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:43:51,373 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:43:52,672 | INFO | ASG_01 | ASG_01 conectado
+2026-07-29 07:43:56,509 | INFO | ASG_06 | ASG_06 conectado
+2026-07-29 07:44:22,477 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-29 07:44:27,529 | INFO | ASG_01 | ASG_01 conectado
+2026-07-30 09:52:35,799 | INFO | writer | Writer iniciado
+2026-07-30 09:52:35,800 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-30 09:52:35,801 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-30 09:52:35,801 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-30 09:52:35,802 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-30 09:52:35,803 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-30 09:52:35,804 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-30 09:52:35,878 | INFO | ASG_02 | ASG_02 conectado
+2026-07-30 09:52:35,887 | INFO | ASG_04 | ASG_04 conectado
+2026-07-30 09:52:35,896 | INFO | ASG_01 | ASG_01 conectado
+2026-07-30 09:52:35,905 | INFO | ASG_05 | ASG_05 conectado
+2026-07-30 09:52:35,913 | INFO | ASG_06 | ASG_06 conectado
+2026-07-30 09:52:35,921 | INFO | ASG_07 | ASG_07 conectado
+2026-07-30 16:02:38,507 | ERROR | writer | Error guardando evento: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 359, in writer_worker
+    save_clean_result(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 281, in save_clean_result
+    append_csv(master_paths["master_clean_csv"], row)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 199, in append_csv
+    with open(file_path, "a", newline="", encoding="utf-8-sig") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+2026-07-30 16:02:40,716 | ERROR | writer | Error guardando evento: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 359, in writer_worker
+    save_clean_result(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 281, in save_clean_result
+    append_csv(master_paths["master_clean_csv"], row)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 199, in append_csv
+    with open(file_path, "a", newline="", encoding="utf-8-sig") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+2026-07-30 16:02:41,732 | ERROR | writer | Error guardando evento: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 359, in writer_worker
+    save_clean_result(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 281, in save_clean_result
+    append_csv(master_paths["master_clean_csv"], row)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 199, in append_csv
+    with open(file_path, "a", newline="", encoding="utf-8-sig") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+2026-07-30 16:02:46,677 | ERROR | writer | Error guardando evento: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 359, in writer_worker
+    save_clean_result(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 281, in save_clean_result
+    append_csv(master_paths["master_clean_csv"], row)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 199, in append_csv
+    with open(file_path, "a", newline="", encoding="utf-8-sig") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+2026-07-30 16:02:47,622 | ERROR | writer | Error guardando evento: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 359, in writer_worker
+    save_clean_result(row)
+    ~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 281, in save_clean_result
+    append_csv(master_paths["master_clean_csv"], row)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_storage.py", line 199, in append_csv
+    with open(file_path, "a", newline="", encoding="utf-8-sig") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\asg_data_acquisition_SPC_F09\\data\\processed\\asg_clean_master_2026-07-30.csv'
+2026-07-30 17:06:37,153 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 17:06:37,454 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 17:06:37,254 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 17:06:37,455 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 17:06:37,367 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 17:06:37,538 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-30 18:42:30,840 | ERROR | ASG_02 | ASG_02 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-30 18:42:31,146 | ERROR | ASG_05 | ASG_05 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-30 18:42:31,192 | ERROR | ASG_06 | ASG_06 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-30 18:42:31,283 | ERROR | ASG_04 | ASG_04 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-30 18:42:31,284 | ERROR | ASG_07 | ASG_07 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-30 18:42:32,719 | ERROR | ASG_01 | ASG_01 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-30 18:42:36,400 | INFO | ASG_02 | ASG_02 conectado
+2026-07-30 18:42:36,452 | INFO | ASG_06 | ASG_06 conectado
+2026-07-30 18:42:36,460 | INFO | ASG_04 | ASG_04 conectado
+2026-07-30 18:42:36,479 | INFO | ASG_05 | ASG_05 conectado
+2026-07-30 18:42:36,506 | INFO | ASG_07 | ASG_07 conectado
+2026-07-30 18:42:37,966 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 08:28:42,869 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:42,911 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:42,912 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:42,912 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:42,913 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:42,913 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 08:28:49,914 | ERROR | ASG_06 | ASG_06 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:50,144 | ERROR | ASG_02 | ASG_02 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:50,235 | ERROR | ASG_07 | ASG_07 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:50,342 | ERROR | ASG_01 | ASG_01 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:50,476 | ERROR | ASG_05 | ASG_05 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:50,624 | ERROR | ASG_04 | ASG_04 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 08:28:55,075 | ERROR | ASG_06 | ASG_06 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:28:55,537 | ERROR | ASG_02 | ASG_02 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:28:55,629 | ERROR | ASG_07 | ASG_07 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:28:55,667 | ERROR | ASG_01 | ASG_01 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:28:55,854 | ERROR | ASG_05 | ASG_05 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:28:55,909 | ERROR | ASG_04 | ASG_04 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 08:29:00,364 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 08:29:00,788 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 08:29:01,089 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 08:29:01,120 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 08:29:01,320 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 08:29:01,435 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 13:59:16,801 | INFO | writer | Writer iniciado
+2026-07-31 13:59:16,802 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-31 13:59:16,802 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-31 13:59:16,804 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-31 13:59:16,805 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-31 13:59:16,805 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-31 13:59:16,806 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-31 13:59:16,870 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 13:59:16,878 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 13:59:16,886 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 13:59:16,895 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 13:59:16,901 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 13:59:16,910 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 14:12:18,975 | INFO | writer | Writer iniciado
+2026-07-31 14:12:18,976 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-31 14:12:18,977 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-31 14:12:18,978 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-31 14:12:18,980 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-31 14:12:18,981 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-31 14:12:18,983 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-31 14:12:19,057 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 14:12:19,067 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 14:12:19,075 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 14:12:19,084 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 14:12:19,093 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 14:12:19,101 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 14:42:33,483 | INFO | writer | Writer iniciado
+2026-07-31 14:42:33,484 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-31 14:42:33,485 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-31 14:42:33,486 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-31 14:42:33,488 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-31 14:42:33,488 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-31 14:42:33,489 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-31 14:42:33,548 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 14:42:33,558 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 14:42:33,567 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 14:42:33,578 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 14:42:33,588 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 14:42:33,600 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 14:49:42,516 | INFO | writer | Writer iniciado
+2026-07-31 14:49:42,517 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-31 14:49:42,517 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-31 14:49:42,518 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-31 14:49:42,519 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-31 14:49:42,520 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-31 14:49:42,521 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-31 14:49:42,582 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 14:49:42,590 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 14:49:42,601 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 14:49:42,609 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 14:49:42,619 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 14:49:42,628 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 14:53:59,626 | INFO | writer | Writer iniciado
+2026-07-31 14:53:59,627 | INFO | ASG_01 | Iniciando worker ASG_01 | 10.132.160.190:4545
+2026-07-31 14:53:59,628 | INFO | ASG_02 | Iniciando worker ASG_02 | 10.132.160.184:4545
+2026-07-31 14:53:59,629 | INFO | ASG_04 | Iniciando worker ASG_04 | 10.132.160.175:4545
+2026-07-31 14:53:59,629 | INFO | ASG_05 | Iniciando worker ASG_05 | 10.132.160.181:4545
+2026-07-31 14:53:59,630 | INFO | ASG_06 | Iniciando worker ASG_06 | 10.132.160.178:4545
+2026-07-31 14:53:59,631 | INFO | ASG_07 | Iniciando worker ASG_07 | 10.132.160.187:4545
+2026-07-31 14:53:59,700 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 14:53:59,712 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 14:53:59,725 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 14:53:59,737 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 14:53:59,747 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 14:53:59,758 | INFO | ASG_07 | ASG_07 conectado
+2026-07-31 14:58:14,579 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 427, in device_worker
+    chunk = sock.recv(4096)
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 14:58:24,617 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:58:34,657 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:58:44,670 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:58:54,701 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:04,726 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:14,764 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:24,813 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:34,845 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:44,885 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 14:59:54,919 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 15:00:04,946 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 15:00:14,989 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 15:00:25,036 | ERROR | ASG_02 | ASG_02 error: timed out
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+TimeoutError: timed out
+2026-07-31 15:00:30,096 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 15:40:37,931 | ERROR | ASG_01 | ASG_01 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:40:37,934 | ERROR | ASG_07 | ASG_07 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:40:37,936 | ERROR | ASG_04 | ASG_04 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:40:37,937 | ERROR | ASG_06 | ASG_06 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:40:37,938 | ERROR | ASG_02 | ASG_02 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:40:38,246 | ERROR | ASG_05 | ASG_05 error: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 422, in device_worker
+    send_keepalive(sock)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 136, in send_keepalive
+    send_mid(sock, "9999", "001")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 35, in send_mid
+    sock.sendall(packet)
+    ~~~~~~~~~~~~^^^^^^^^
+ConnectionResetError: [WinError 10054] Se ha forzado la interrupción de una conexión existente por el host remoto
+2026-07-31 15:53:13,310 | ERROR | ASG_02 | ASG_02 error: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10051] Se ha intentado una operación de socket en una red no accesible
+2026-07-31 15:53:13,607 | ERROR | ASG_01 | ASG_01 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 15:53:14,048 | ERROR | ASG_05 | ASG_05 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 15:53:14,189 | ERROR | ASG_04 | ASG_04 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 15:53:14,267 | ERROR | ASG_06 | ASG_06 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 15:53:14,344 | ERROR | ASG_07 | ASG_07 error: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+Traceback (most recent call last):
+  File "C:\asg_data_acquisition_SPC_F09\collector_multi_ip.py", line 397, in device_worker
+    sock = connect_asg(ip, port)
+  File "C:\asg_data_acquisition_SPC_F09\src\asg_acop.py", line 42, in connect_asg
+    sock = socket.create_connection((ip, port), timeout=timeout)
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\Ocantu\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+OSError: [WinError 10065] Se ha intentado una operación de socket en un host no accesible
+2026-07-31 15:53:19,474 | INFO | ASG_02 | ASG_02 conectado
+2026-07-31 15:53:19,568 | INFO | ASG_01 | ASG_01 conectado
+2026-07-31 15:53:19,786 | INFO | ASG_05 | ASG_05 conectado
+2026-07-31 15:53:19,791 | INFO | ASG_04 | ASG_04 conectado
+2026-07-31 15:53:19,834 | INFO | ASG_06 | ASG_06 conectado
+2026-07-31 15:53:19,945 | INFO | ASG_07 | ASG_07 conectado
