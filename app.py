@@ -35,12 +35,13 @@ LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
 SESSION_FILE = LOG_DIR / "production_session.json"
-APP_VERSION = "v0.5.10"
+LAUNCHER_SELECTION_FILE = LOG_DIR / "launcher_selection.json"
+APP_VERSION = "v0.5.11"
 
 
 st.set_page_config(
     page_title="ASG SPC F09",
-    page_icon="🔩",
+    page_icon="🐖",
     layout="wide",
 )
 
@@ -233,6 +234,79 @@ def load_session_state():
 
     except Exception:
         return {"models": {}}
+
+
+@st.cache_data(ttl=1)
+def load_launcher_selection():
+    """
+    Lee la selección realizada desde asg_launcher.py.
+
+    Archivo esperado:
+    logs/launcher_selection.json
+    """
+    if not LAUNCHER_SELECTION_FILE.exists():
+        return {}
+
+    try:
+        with open(LAUNCHER_SELECTION_FILE, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+
+        if not isinstance(payload, dict):
+            return {}
+
+        return payload
+
+    except Exception:
+        return {}
+
+
+def get_launcher_selected_model(default_model="T1XX-1"):
+    """
+    Regresa el modelo seleccionado desde el launcher.
+
+    Si no existe archivo de launcher, usa default_model.
+    """
+    payload = load_launcher_selection()
+    selected = str(payload.get("selected_model", default_model)).strip()
+
+    if selected in ["T1XX-1", "T1XX-2"]:
+        return selected
+
+    return default_model
+
+
+def filter_status_for_model(status_df, selected_model, devices_for_model):
+    """
+    Filtra la tabla de estado para que Vista general no muestre estaciones
+    de otro modelo que hayan quedado de una corrida anterior.
+    """
+    if status_df is None or status_df.empty:
+        return pd.DataFrame()
+
+    filtered = status_df.copy()
+
+    allowed_devices = []
+
+    if devices_for_model is not None and not devices_for_model.empty:
+        if "device_id" in devices_for_model.columns:
+            allowed_devices = (
+                devices_for_model["device_id"]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .tolist()
+            )
+
+    if allowed_devices and "device_id" in filtered.columns:
+        filtered["device_id"] = filtered["device_id"].astype(str).str.strip()
+        filtered = filtered[filtered["device_id"].isin(allowed_devices)].copy()
+        return filtered
+
+    if "running_model" in filtered.columns:
+        filtered = filtered[filtered["running_model"] == selected_model].copy()
+
+    return filtered
+
 
 
 def get_active_session_info(session_payload, selected_model):
@@ -2600,6 +2674,7 @@ def render_about_tab():
         - Guardado manual optimizado de tiempos de ciclo
         - Tabla de datos en vivo
         - Renderizado por vista activa para evitar recálculo innecesario
+        - Sincronización con launcher externo
         """
     )
 
@@ -2643,11 +2718,17 @@ def main():
 
         st.header("Controles")
 
+        model_options = ["T1XX-1", "T1XX-2"]
+        launcher_model = get_launcher_selected_model(default_model="T1XX-1")
+
         selected_model = st.radio(
             "Modelo de corrida",
-            ["T1XX-1", "T1XX-2"],
-            index=0,
+            model_options,
+            index=model_options.index(launcher_model) if launcher_model in model_options else 0,
+            key=f"selected_model_from_launcher_{launcher_model}",
         )
+
+        st.caption(f"Modelo recibido del launcher: {launcher_model}")
 
         count_scope = st.radio(
             "Conteo de piezas",
@@ -2674,6 +2755,7 @@ def main():
             "ASG / estaciones",
             device_options,
             default=device_options,
+            key=f"selected_devices_{selected_model}",
         )
 
         selected_result = st.selectbox(
@@ -2737,6 +2819,11 @@ def main():
 
     status_payload = load_status()
     status_df = status_to_dataframe(status_payload)
+    status_df_for_view = filter_status_for_model(
+        status_df=status_df,
+        selected_model=selected_model,
+        devices_for_model=devices_for_model,
+    )
 
     clean_df = load_clean_data()
 
@@ -2775,7 +2862,7 @@ def main():
     ]
 
     if selected_page == "Vista general":
-        render_device_status(status_df)
+        render_device_status(status_df_for_view)
         st.divider()
         render_summary_metrics(filtered_df)
 
@@ -2794,19 +2881,11 @@ def main():
 
     elif selected_page == "Tiempos de ciclo":
         cycle_base_df = filter_cycle_base_data(
-            clean_df,
+            clean_df_for_view,
             selected_model=selected_model,
             selected_devices=selected_devices,
             last_n=last_n,
             time_window_minutes=time_window_minutes,
-        )
-
-        cycle_export_base_df = filter_cycle_base_data(
-            clean_df,
-            selected_model=selected_model,
-            selected_devices=device_options,
-            last_n=0,
-            time_window_minutes=None,
         )
 
         render_cycle_time_tab(

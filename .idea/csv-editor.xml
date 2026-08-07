@@ -73,6 +73,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\processed\asg_clean_master_2026-08-07.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\processed\asg_cycle_summary_T1XX-1_2026-07-28.csv">
           <value>
             <Attribute>
