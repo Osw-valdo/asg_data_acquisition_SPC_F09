@@ -1652,7 +1652,7 @@ def get_capability_columns(variable_col):
     }
 
 
-def calculate_cp_cpk(values, lsl, usl):
+def calculate_cp_cpk(values, lsl, usl, min_std=0.001):
     values = pd.to_numeric(values, errors="coerce").dropna()
 
     if values.empty:
@@ -1661,7 +1661,13 @@ def calculate_cp_cpk(values, lsl, usl):
     mean = float(values.mean())
     std = float(values.std())
 
-    if std <= 0 or lsl is None or usl is None:
+    if (
+        std is None
+        or pd.isna(std)
+        or std < min_std
+        or lsl is None
+        or usl is None
+    ):
         return mean, std, None, None
 
     cp = (usl - lsl) / (6 * std)
