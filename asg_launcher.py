@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 
-APP_NAME = "ASG Data Acquisition SPC F09"
+APP_NAME = "SPC Híbrido ASG + PLC F09"
 PORT = 8502
 
 
@@ -47,7 +47,9 @@ def validate_project():
     required_files = [
         ROOT / "app.py",
         ROOT / "collector_multi_ip.py",
+        ROOT / "collector_ftp_plc.py",
         ROOT / "config" / "asg_devices.csv",
+        ROOT / "config" / "plc_devices.csv",
     ]
 
     missing = [str(path) for path in required_files if not path.exists()]
@@ -110,7 +112,7 @@ def run_in_new_window(title, command):
 
     try:
         subprocess.Popen(
-            ["cmd", "/c", "start", title, str(bat_path)],
+            ["cmd.exe", "/c", "start", "", str(bat_path)],
             cwd=str(ROOT),
         )
     except Exception as e:
@@ -132,7 +134,7 @@ def start_dashboard():
     run_in_new_window("ASG Dashboard", command)
 
 
-def start_collector():
+def start_asg_collector():
     save_launcher_selection()
 
     model = model_var.get()
@@ -152,10 +154,24 @@ def start_collector():
     run_in_new_window(f"ASG Collector {model}", command)
 
 
-def start_dashboard_and_collector():
+def start_ftp_collector():
+    save_launcher_selection()
+
+    model = model_var.get()
+    python_cmd = get_python_cmd()
+    command = (
+        f'{python_cmd} collector_ftp_plc.py '
+        f'--model {model} --interval 10'
+    )
+
+    run_in_new_window(f"PLC FTP Collector {model}", command)
+
+
+def start_complete_system():
     save_launcher_selection()
     start_dashboard()
-    start_collector()
+    start_asg_collector()
+    start_ftp_collector()
 
 def open_browser():
     webbrowser.open(f"http://localhost:{PORT}")
@@ -177,13 +193,18 @@ def show_info():
         "Recomendación:\n"
         "1. Selecciona modelo.\n"
         "2. Selecciona modo de conteo.\n"
-        "3. Inicia Dashboard + Colector.",
+        "3. Inicia el sistema completo.\n\n"
+        "Se abrirán tres ventanas:\n"
+        "- Dashboard Streamlit\n"
+        "- Colector ASG en vivo\n"
+        "- Colector PLC por FTP\n\n"
+        "La ventana PLC FTP solicitará las credenciales.",
     )
 
 
 root = tk.Tk()
 root.title(APP_NAME)
-root.geometry("500x430")
+root.geometry("520x560")
 root.resizable(False, False)
 
 root.configure(bg="#111827")
@@ -198,7 +219,7 @@ title_label = tk.Label(
 
 subtitle_label = tk.Label(
     root,
-    text="Inicio rápido del dashboard y colector ASG",
+    text="Dashboard + ASG en vivo + trazabilidad PLC/QR",
     font=("Segoe UI", 10),
     fg="#9CA3AF",
     bg="#111827",
@@ -312,8 +333,8 @@ button_style = {
 
 tk.Button(
     button_frame,
-    text="Iniciar Dashboard + Colector",
-    command=start_dashboard_and_collector,
+    text="Iniciar sistema completo",
+    command=start_complete_system,
     bg="#2563EB",
     activebackground="#1D4ED8",
     **button_style,
@@ -330,8 +351,17 @@ tk.Button(
 
 tk.Button(
     button_frame,
-    text="Solo iniciar Colector",
-    command=start_collector,
+    text="Solo iniciar Colector ASG",
+    command=start_asg_collector,
+    bg="#374151",
+    activebackground="#4B5563",
+    **button_style,
+).pack(pady=5)
+
+tk.Button(
+    button_frame,
+    text="Solo iniciar Colector PLC / FTP",
+    command=start_ftp_collector,
     bg="#374151",
     activebackground="#4B5563",
     **button_style,

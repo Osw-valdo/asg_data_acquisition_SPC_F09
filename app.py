@@ -31,12 +31,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 
 DATA_DIR = PROJECT_ROOT / "data"
 PROCESSED_DIR = DATA_DIR / "processed"
+PLC_PROCESSED_DIR = DATA_DIR / "plc_processed"
 LOG_DIR = PROJECT_ROOT / "logs"
 
 STATUS_FILE = LOG_DIR / "device_status.json"
+PLC_STATUS_FILE = LOG_DIR / "plc_ftp_status.json"
 SESSION_FILE = LOG_DIR / "production_session.json"
 LAUNCHER_SELECTION_FILE = LOG_DIR / "launcher_selection.json"
-APP_VERSION = "v0.5.11"
+APP_VERSION = "v0.6.3"
+MIN_CAPABILITY_SAMPLES = 30
+MIN_CAPABILITY_STD = 0.001
 
 
 st.set_page_config(
@@ -136,6 +140,18 @@ def load_status():
 
 
 @st.cache_data(ttl=1)
+def load_plc_status():
+    if not PLC_STATUS_FILE.exists():
+        return {}
+
+    try:
+        with open(PLC_STATUS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=1)
 def load_clean_data():
     today_file = PROCESSED_DIR / f"asg_clean_master_{today_str()}.csv"
 
@@ -215,6 +231,61 @@ def load_clean_data():
     df["task_label"] = df.apply(build_task_label, axis=1)
 
     return df
+
+
+@st.cache_data(ttl=1)
+def load_plc_traceability_data():
+    suffix = today_str()
+    files = {
+        "pieces": PLC_PROCESSED_DIR / f"plc_pieces_master_{suffix}.csv",
+        "attempts": PLC_PROCESSED_DIR / f"plc_piece_attempts_master_{suffix}.csv",
+        "tightenings": PLC_PROCESSED_DIR / f"plc_tightenings_master_{suffix}.csv",
+    }
+
+    loaded = {}
+
+    for key, file_path in files.items():
+        if not file_path.exists():
+            loaded[key] = pd.DataFrame()
+            continue
+
+        try:
+            loaded[key] = pd.read_csv(file_path)
+        except Exception:
+            loaded[key] = pd.DataFrame()
+
+    for df in loaded.values():
+        if "plc_timestamp" in df.columns:
+            df["plc_timestamp"] = pd.to_datetime(
+                df["plc_timestamp"],
+                errors="coerce",
+            )
+
+    numeric_columns = {
+        "declared_screws",
+        "captured_screws",
+        "ng_tightenings",
+        "attempt_number",
+        "attempts_for_qr_station",
+        "is_repeated_qr",
+        "is_final_attempt",
+        "screw_position",
+        "torque_actual",
+        "torque_min",
+        "torque_max",
+        "torque_target",
+        "angle_actual",
+        "angle_min",
+        "angle_max",
+        "angle_target",
+    }
+
+    for df in loaded.values():
+        for column in numeric_columns:
+            if column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce")
+
+    return loaded["pieces"], loaded["attempts"], loaded["tightenings"]
 
 
 
@@ -306,6 +377,34 @@ def filter_status_for_model(status_df, selected_model, devices_for_model):
         filtered = filtered[filtered["running_model"] == selected_model].copy()
 
     return filtered
+
+
+def filter_plc_status_for_model(status_df, devices_for_model):
+    if status_df is None or status_df.empty:
+        return pd.DataFrame()
+
+    if devices_for_model is None or devices_for_model.empty:
+        return status_df.copy()
+
+    asg_ids = (
+        devices_for_model["device_id"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .tolist()
+    )
+    allowed_plc_ids = {
+        "PLC_" + value.split("_", 1)[1]
+        for value in asg_ids
+        if value.upper().startswith("ASG_")
+    }
+
+    filtered = status_df.copy()
+    if "device_id" in filtered.columns:
+        filtered["device_id"] = filtered["device_id"].astype(str).str.strip()
+        filtered = filtered[filtered["device_id"].isin(allowed_plc_ids)]
+
+    return filtered.copy()
 
 
 
@@ -549,11 +648,68 @@ def calculate_piece_cycles(df, devices_for_model, selected_model):
     return pieces_df
 
 
-def calculate_cycle_summary(df, pieces_df, devices_for_model, selected_model):
+def calculate_plc_ok_piece_counts(plc_pieces_df):
+    """Cuenta QR finales OK por estación; nunca infiere piezas desde tornillos."""
+    empty_columns = ["device_id", "plc_ok_pieces"]
+
+    if plc_pieces_df is None or plc_pieces_df.empty:
+        return pd.DataFrame(columns=empty_columns)
+
+    required = {"attempt_result", "qr_code"}
+    if not required.issubset(plc_pieces_df.columns):
+        return pd.DataFrame(columns=empty_columns)
+
+    work_df = plc_pieces_df.copy()
+
+    if "is_final_attempt" in work_df.columns:
+        final_flag = pd.to_numeric(
+            work_df["is_final_attempt"], errors="coerce"
+        ).fillna(0)
+        work_df = work_df[final_flag == 1]
+
+    work_df = work_df[
+        work_df["attempt_result"].fillna("").astype(str).str.upper() == "OK"
+    ].copy()
+    work_df["qr_code"] = work_df["qr_code"].fillna("").astype(str).str.strip()
+    work_df = work_df[work_df["qr_code"] != ""]
+
+    device_col = "asg_device_id" if "asg_device_id" in work_df.columns else "device_id"
+    if device_col not in work_df.columns or work_df.empty:
+        return pd.DataFrame(columns=empty_columns)
+
+    work_df[device_col] = work_df[device_col].fillna("").astype(str).str.strip()
+    work_df = work_df[work_df[device_col] != ""]
+
+    # Un mismo QR cuenta una sola vez por estación, aunque tenga reintentos.
+    work_df = work_df.drop_duplicates(subset=[device_col, "qr_code"], keep="last")
+
+    return (
+        work_df.groupby(device_col, dropna=False)["qr_code"]
+        .nunique()
+        .rename("plc_ok_pieces")
+        .reset_index()
+        .rename(columns={device_col: "device_id"})
+    )
+
+
+def calculate_cycle_summary(
+    df,
+    pieces_df,
+    devices_for_model,
+    selected_model,
+    plc_pieces_df=None,
+):
     if devices_for_model is None or devices_for_model.empty:
         return pd.DataFrame()
 
     rows = []
+    plc_counts_df = calculate_plc_ok_piece_counts(plc_pieces_df)
+    plc_count_lookup = {}
+
+    if not plc_counts_df.empty:
+        plc_count_lookup = dict(
+            zip(plc_counts_df["device_id"], plc_counts_df["plc_ok_pieces"])
+        )
 
     for _, config_row in devices_for_model.iterrows():
         config = config_row.to_dict()
@@ -569,13 +725,6 @@ def calculate_cycle_summary(df, pieces_df, devices_for_model, selected_model):
             station_df = df[df["device_id"] == device_id].copy()
 
         total_screws = len(station_df)
-
-        if screws_per_piece > 0:
-            complete_pieces = total_screws // screws_per_piece
-            partial_screws = total_screws % screws_per_piece
-        else:
-            complete_pieces = 0
-            partial_screws = 0
 
         station_pieces = pd.DataFrame()
 
@@ -600,8 +749,8 @@ def calculate_cycle_summary(df, pieces_df, devices_for_model, selected_model):
                 "module_name": config.get("module_name", ""),
                 "screws_per_piece": screws_per_piece,
                 "torque_results": total_screws,
-                "complete_pieces": complete_pieces,
-                "partial_screws": partial_screws,
+                "plc_ok_pieces": int(plc_count_lookup.get(device_id, 0)),
+                "asg_cycle_samples": len(station_pieces),
                 "avg_cycle_time_sec": cycle_values.mean() if not cycle_values.empty else None,
                 "min_cycle_time_sec": cycle_values.min() if not cycle_values.empty else None,
                 "max_cycle_time_sec": cycle_values.max() if not cycle_values.empty else None,
@@ -688,8 +837,8 @@ def save_cycle_outputs(pieces_df, summary_df, selected_model):
                     "process",
                     "screws_per_piece",
                     "torque_results",
-                    "complete_pieces",
-                    "partial_screws",
+                    "plc_ok_pieces",
+                    "asg_cycle_samples",
                     "avg_cycle_time_sec",
                     "min_cycle_time_sec",
                     "max_cycle_time_sec",
@@ -721,7 +870,7 @@ def save_cycle_outputs(pieces_df, summary_df, selected_model):
 
 
 def render_device_status(status_df):
-    st.subheader("Estado de conexión de estaciones")
+    st.subheader("Estado ASG en vivo")
 
     if status_df.empty:
         st.warning("Todavía no existe `logs/device_status.json`. Ejecuta primero el colector.")
@@ -759,6 +908,66 @@ def render_device_status(status_df):
         "last_error",
     ]
 
+    available_cols = [col for col in display_cols if col in status_df.columns]
+
+    st.dataframe(
+        status_df[available_cols],
+        width="stretch",
+        hide_index=True,
+    )
+
+
+def render_plc_ftp_status(status_df):
+    st.subheader("Estado PLC / FTP")
+
+    if status_df.empty:
+        st.warning(
+            "Todavía no existe estado PLC/FTP para este modelo. "
+            "Ejecuta el colector PLC desde el launcher."
+        )
+        return
+
+    connected = (
+        int(status_df["connected"].fillna(False).astype(bool).sum())
+        if "connected" in status_df.columns else 0
+    )
+    files_available = (
+        int(status_df["file_available"].fillna(False).astype(bool).sum())
+        if "file_available" in status_df.columns else 0
+    )
+    updated = (
+        int(status_df["changed"].fillna(False).astype(bool).sum())
+        if "changed" in status_df.columns else 0
+    )
+    errors = (
+        int(status_df["last_error"].fillna("").astype(str).str.strip().ne("").sum())
+        if "last_error" in status_df.columns else 0
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("PLCs esperados", len(status_df))
+    c2.metric("FTP conectado", connected)
+    c3.metric("Logfile disponible", files_available)
+    c4.metric("Con error", errors)
+
+    if updated:
+        st.caption(f"Archivos actualizados en el último ciclo: {updated}")
+
+    display_cols = [
+        "device_id",
+        "station",
+        "process",
+        "ip",
+        "connected",
+        "authenticated",
+        "storage_accessible",
+        "file_available",
+        "download_mode",
+        "remote_size",
+        "local_size",
+        "last_download_at",
+        "last_error",
+    ]
     available_cols = [col for col in display_cols if col in status_df.columns]
 
     st.dataframe(
@@ -1110,12 +1319,17 @@ def render_station_dashboard_grid(
                             )
 
 
-def render_cycle_time_tab(cycle_base_df, devices_for_model, selected_model, export_base_df=None):
+def render_cycle_time_tab(
+    cycle_base_df,
+    plc_pieces_df,
+    devices_for_model,
+    selected_model,
+    export_base_df=None,
+):
     st.subheader("Tiempos de ciclo y piezas producidas")
-
-    if cycle_base_df.empty:
-        st.info("Todavía no hay datos para calcular piezas o tiempos de ciclo.")
-        return
+    st.caption(
+        "Producción: QR finales OK del PLC. Tiempos de ciclo: resultados en vivo del ASG."
+    )
 
     pieces_df = calculate_piece_cycles(
         cycle_base_df,
@@ -1128,6 +1342,7 @@ def render_cycle_time_tab(cycle_base_df, devices_for_model, selected_model, expo
         pieces_df=pieces_df,
         devices_for_model=devices_for_model,
         selected_model=selected_model,
+        plc_pieces_df=plc_pieces_df,
     )
 
 
@@ -1150,13 +1365,13 @@ def render_cycle_time_tab(cycle_base_df, devices_for_model, selected_model, expo
             if save_info.get("ok"):
                 st.success(
                     f"CSV guardados correctamente: "
-                    f"{save_info.get('pieces_rows', 0)} piezas | "
+                    f"{save_info.get('pieces_rows', 0)} grupos de ciclo ASG | "
                     f"{save_info.get('summary_rows', 0)} estaciones."
                 )
 
                 st.code(
                     f"""
-Piezas calculadas:
+Grupos ASG usados para tiempo de ciclo:
 {save_info.get("pieces_file", "")}
 
 Resumen tiempos de ciclo:
@@ -1179,8 +1394,21 @@ Resumen tiempos de ciclo:
         valid_tightening_values = valid_tightening_values[valid_tightening_values >= 0]
 
     total_torque_results = int(summary_df["torque_results"].sum())
-    total_complete_pieces = int(summary_df["complete_pieces"].sum())
-    total_partial_screws = int(summary_df["partial_screws"].sum())
+    total_station_ok = int(summary_df["plc_ok_pieces"].sum())
+    total_unique_ok = 0
+
+    if plc_pieces_df is not None and not plc_pieces_df.empty:
+        plc_ok_df = plc_pieces_df.copy()
+        if "attempt_result" in plc_ok_df.columns and "qr_code" in plc_ok_df.columns:
+            plc_ok_df = plc_ok_df[
+                plc_ok_df["attempt_result"].fillna("").astype(str).str.upper() == "OK"
+            ]
+            plc_ok_df["qr_code"] = (
+                plc_ok_df["qr_code"].fillna("").astype(str).str.strip()
+            )
+            total_unique_ok = int(
+                plc_ok_df.loc[plc_ok_df["qr_code"] != "", "qr_code"].nunique()
+            )
 
     avg_cycle = valid_cycle_values.mean() if not valid_cycle_values.empty else None
     avg_tightening = valid_tightening_values.mean() if not valid_tightening_values.empty else None
@@ -1188,8 +1416,8 @@ Resumen tiempos de ciclo:
     c1, c2, c3, c4 = st.columns(4)
 
     c1.metric("Resultados torque", total_torque_results)
-    c2.metric("Piezas completas", total_complete_pieces)
-    c3.metric("Tornillos en proceso", total_partial_screws)
+    c2.metric("Piezas únicas OK (PLC)", total_unique_ok)
+    c3.metric("OK por estación (PLC)", total_station_ok)
     c4.metric("Tiempo ciclo promedio", fmt_seconds(avg_cycle))
 
     c5, c6, c7, c8 = st.columns(4)
@@ -1201,34 +1429,34 @@ Resumen tiempos de ciclo:
 
     st.divider()
 
-    st.markdown("### Piezas completas por estación")
+    st.markdown("### Piezas OK por estación (PLC)")
 
     bar_fig = go.Figure()
 
     bar_fig.add_trace(
         go.Bar(
             x=summary_df["device_id"],
-            y=summary_df["complete_pieces"],
-            text=summary_df["complete_pieces"],
+            y=summary_df["plc_ok_pieces"],
+            text=summary_df["plc_ok_pieces"],
             textposition="auto",
             customdata=safe_customdata(
                 summary_df,
                 [
                     "station",
                     "process",
-                    "screws_per_piece",
+                    "module_name",
                     "torque_results",
-                    "partial_screws",
+                    "asg_cycle_samples",
                 ],
             ),
             hovertemplate=(
                 "<b>%{x}</b><br>"
                 "Estación: %{customdata[0]}<br>"
                 "Proceso: %{customdata[1]}<br>"
-                "Tornillos por pieza: %{customdata[2]}<br>"
+                "Módulo: %{customdata[2]}<br>"
                 "Resultados torque: %{customdata[3]}<br>"
-                "Piezas completas: %{y}<br>"
-                "Tornillos en proceso: %{customdata[4]}<br>"
+                "Piezas OK PLC: %{y}<br>"
+                "Muestras de ciclo ASG: %{customdata[4]}<br>"
                 "<extra></extra>"
             ),
         )
@@ -1236,7 +1464,7 @@ Resumen tiempos de ciclo:
 
     bar_fig.update_layout(
         xaxis_title="Estación",
-        yaxis_title="Piezas completas",
+        yaxis_title="Piezas OK (QR PLC)",
         height=380,
         margin=dict(l=10, r=10, t=30, b=10),
     )
@@ -1252,7 +1480,7 @@ Resumen tiempos de ciclo:
     st.markdown("### Histograma de tiempos de ciclo")
 
     if pieces_df.empty or valid_cycle_values.empty:
-        st.info("Aún no hay suficientes piezas completas para calcular tiempo de ciclo.")
+        st.info("Aún no hay suficientes grupos ASG para calcular tiempo de ciclo.")
     else:
         station_options = ["Todas"] + summary_df["device_id"].tolist()
 
@@ -1319,8 +1547,8 @@ Resumen tiempos de ciclo:
         "station",
         "screws_per_piece",
         "torque_results",
-        "complete_pieces",
-        "partial_screws",
+        "plc_ok_pieces",
+        "asg_cycle_samples",
         "avg_cycle_time_sec_fmt",
         "min_cycle_time_sec_fmt",
         "max_cycle_time_sec_fmt",
@@ -1336,10 +1564,10 @@ Resumen tiempos de ciclo:
         hide_index=True,
     )
 
-    st.markdown("### Piezas calculadas")
+    st.markdown("### Grupos ASG usados para tiempos")
 
     if pieces_df.empty:
-        st.info("Aún no hay piezas completas calculadas.")
+        st.info("Aún no hay grupos ASG suficientes para calcular tiempos.")
     else:
         pieces_display = pieces_df.copy()
 
@@ -1381,7 +1609,71 @@ Resumen tiempos de ciclo:
 
 
 
-def calculate_torque_capability(df, minimum_samples=30):
+def prepare_hybrid_capability_data(asg_df, plc_tightenings_df):
+    """
+    Usa el logfile PLC como fuente preferida por estación y el ASG como respaldo.
+
+    Esto evita duplicar el mismo apriete y permite calcular capacidad en estaciones
+    cuyo ASG no es accesible desde la red de la PC recolectora.
+    """
+    asg = asg_df.copy() if asg_df is not None else pd.DataFrame()
+    plc = (
+        plc_tightenings_df.copy()
+        if plc_tightenings_df is not None
+        else pd.DataFrame()
+    )
+
+    if not asg.empty:
+        asg["data_source"] = "ASG en vivo"
+
+    if not plc.empty:
+        if "asg_device_id" in plc.columns:
+            plc["device_id"] = plc["asg_device_id"].fillna("").astype(str)
+        elif "device_id" in plc.columns:
+            plc["device_id"] = (
+                plc["device_id"].fillna("").astype(str)
+                .str.replace(r"^PLC_", "ASG_", regex=True)
+            )
+
+        if "parameter_set_id" not in plc.columns:
+            plc["parameter_set_id"] = None
+
+        def plc_task_label(value):
+            try:
+                if pd.isna(value):
+                    return ""
+                return f"PSet {int(float(value)):03d}"
+            except Exception:
+                return ""
+
+        plc["task_label"] = plc["parameter_set_id"].apply(plc_task_label)
+        plc["torque_unit"] = "cN·m"
+        plc["result_label"] = plc.get(
+            "tightening_result",
+            pd.Series("", index=plc.index),
+        )
+        plc["data_source"] = "PLC logfile"
+
+    plc_devices = set()
+    if not plc.empty and {"device_id", "torque_actual"}.issubset(plc.columns):
+        valid_plc = plc.dropna(subset=["torque_actual"])
+        plc_devices = set(valid_plc["device_id"].astype(str))
+
+    if not asg.empty and plc_devices and "device_id" in asg.columns:
+        asg = asg[~asg["device_id"].astype(str).isin(plc_devices)]
+
+    frames = [frame for frame in (plc, asg) if not frame.empty]
+    if not frames:
+        return pd.DataFrame()
+
+    return pd.concat(frames, ignore_index=True, sort=False)
+
+
+def calculate_torque_capability(
+    df,
+    minimum_samples=MIN_CAPABILITY_SAMPLES,
+    minimum_std=MIN_CAPABILITY_STD,
+):
     """
     Calcula Cp y Cpk por estación, Task/PSet y límites de torque.
 
@@ -1415,6 +1707,7 @@ def calculate_torque_capability(df, minimum_samples=30):
         "parameter_set_id": None,
         "torque_target": None,
         "torque_unit": "",
+        "data_source": "",
     }
 
     for col, default_value in optional_defaults.items():
@@ -1487,6 +1780,7 @@ def calculate_torque_capability(df, minimum_samples=30):
         "torque_target",
         "torque_max",
         "torque_unit",
+        "data_source",
         "capability_group",
     ]
 
@@ -1523,7 +1817,7 @@ def calculate_torque_capability(df, minimum_samples=30):
         if (
             std_value is not None
             and pd.notna(std_value)
-            and float(std_value) > 0
+            and float(std_value) >= minimum_std
         ):
             cp = (usl - lsl) / (6 * std_value)
             cpl = (mean_value - lsl) / (3 * std_value)
@@ -1540,7 +1834,13 @@ def calculate_torque_capability(df, minimum_samples=30):
             else 0
         )
 
-        if sample_count < minimum_samples:
+        if (
+            std_value is not None
+            and pd.notna(std_value)
+            and 0 <= float(std_value) < minimum_std
+        ):
+            classification = "Variación insuficiente"
+        elif sample_count < minimum_samples:
             classification = "Muestra insuficiente"
         elif cpk is None or pd.isna(cpk):
             classification = "No calculable"
@@ -1565,6 +1865,12 @@ def calculate_torque_capability(df, minimum_samples=30):
                 "cpk": cpk,
                 "out_of_spec": out_of_spec,
                 "out_of_spec_pct": out_of_spec_pct,
+                "within_spec_pct": 100 - out_of_spec_pct,
+                "cpk_limited_by": (
+                    "LSL" if cpl is not None and cpu is not None and cpl <= cpu
+                    else "USL" if cpl is not None and cpu is not None
+                    else ""
+                ),
                 "classification": classification,
             }
         )
@@ -1652,14 +1958,14 @@ def get_capability_columns(variable_col):
     }
 
 
-def calculate_cp_cpk(values, lsl, usl, min_std=0.001):
+def calculate_cp_cpk(values, lsl, usl, min_std=MIN_CAPABILITY_STD):
     values = pd.to_numeric(values, errors="coerce").dropna()
 
     if values.empty:
-        return None, None, None, None
+        return None, None, None, None, None, None
 
     mean = float(values.mean())
-    std = float(values.std())
+    std = float(values.std(ddof=1)) if len(values) > 1 else None
 
     if (
         std is None
@@ -1667,15 +1973,16 @@ def calculate_cp_cpk(values, lsl, usl, min_std=0.001):
         or std < min_std
         or lsl is None
         or usl is None
+        or float(usl) <= float(lsl)
     ):
-        return mean, std, None, None
+        return mean, std, None, None, None, None
 
     cp = (usl - lsl) / (6 * std)
     cpu = (usl - mean) / (3 * std)
     cpl = (mean - lsl) / (3 * std)
     cpk = min(cpu, cpl)
 
-    return mean, std, cp, cpk
+    return mean, std, cp, cpl, cpu, cpk
 
 
 def format_capability_value(value, decimals=3):
@@ -1688,7 +1995,10 @@ def format_capability_value(value, decimals=3):
         return "—"
 
 
-def get_capability_status(cpk):
+def get_capability_status(cpk, sample_count=None, minimum_samples=MIN_CAPABILITY_SAMPLES):
+    if sample_count is not None and sample_count < minimum_samples:
+        return "Muestra insuficiente"
+
     if cpk is None or pd.isna(cpk):
         return "Sin evaluar"
 
@@ -1699,6 +2009,65 @@ def get_capability_status(cpk):
         return "Marginal"
 
     return "No aceptable"
+
+
+def prepare_homogeneous_capability_groups(df, variable_col):
+    """Separa PSet y límites para no mezclar poblaciones en un mismo Cpk."""
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    variable_cfg = get_capability_columns(variable_col)
+    lsl_col = variable_cfg["lsl"]
+    target_col = variable_cfg["target"]
+    usl_col = variable_cfg["usl"]
+
+    work_df = df.copy()
+    defaults = {
+        "task_label": "",
+        "parameter_set_id": None,
+        lsl_col: None,
+        target_col: None,
+        usl_col: None,
+    }
+    for column, default in defaults.items():
+        if column and column not in work_df.columns:
+            work_df[column] = default
+
+    for column in [variable_col, lsl_col, target_col, usl_col, "parameter_set_id"]:
+        if column and column in work_df.columns:
+            work_df[column] = pd.to_numeric(work_df[column], errors="coerce")
+
+    work_df = work_df.dropna(subset=[variable_col])
+
+    def group_identity(row):
+        task = str(row.get("task_label", "")).strip()
+        if task.lower() in {"", "nan", "none"}:
+            task = ""
+
+        pset_value = row.get("parameter_set_id")
+        try:
+            pset = f"PSet {int(float(pset_value)):03d}" if pd.notna(pset_value) else "Sin PSet"
+        except Exception:
+            pset = f"PSet {pset_value}"
+
+        program = task or pset
+        lsl = row.get(lsl_col) if lsl_col else None
+        target = row.get(target_col) if target_col else None
+        usl = row.get(usl_col) if usl_col else None
+
+        key = repr((program, lsl, target, usl))
+        label = (
+            f"{program} | LSL {fmt_value(lsl, 3) or '—'} | "
+            f"Target {fmt_value(target, 3) or '—'} | "
+            f"USL {fmt_value(usl, 3) or '—'}"
+        )
+        return pd.Series([key, label])
+
+    work_df[["_capability_group_key", "_capability_group_label"]] = work_df.apply(
+        group_identity,
+        axis=1,
+    )
+    return work_df
 
 
 def make_capability_gauss_chart(
@@ -1850,7 +2219,9 @@ def render_capability_tab(
     st.subheader("Capacidad de proceso")
 
     st.caption(
-        "Distribución con histograma real, campana normal ajustada, límites de especificación y Cp/Cpk."
+        "Distribución con histograma real, campana normal ajustada, límites de "
+        "especificación y Cp/Cpk. Se prefiere el logfile PLC; el ASG en vivo se "
+        "usa como respaldo cuando el PLC aún no tiene datos."
     )
 
     device_options = get_device_options_from_config(devices_for_model)
@@ -1892,6 +2263,59 @@ def render_capability_tab(
     if "running_model" in df.columns:
         df = df[df["running_model"] == selected_model]
 
+    torque_summary_df, _ = calculate_torque_capability(
+        df,
+        minimum_samples=minimum_samples,
+    )
+
+    with st.expander("Resumen Cpk de torque por proceso / PSet", expanded=True):
+        st.caption(
+            "Cada fila usa una población homogénea: misma estación, PSet y límites. "
+            "Cpk = mínimo entre CPL y CPU; incluye resultados OK y NG."
+        )
+
+        if torque_summary_df.empty:
+            st.info("Todavía no hay grupos de torque con límites válidos.")
+        else:
+            summary_columns = [
+                "data_source",
+                "process",
+                "device_id",
+                "task_label",
+                "pset_label",
+                "samples",
+                "mean",
+                "std",
+                "torque_min",
+                "torque_max",
+                "cp",
+                "cpl",
+                "cpu",
+                "cpk",
+                "cpk_limited_by",
+                "out_of_spec",
+                "out_of_spec_pct",
+                "classification",
+            ]
+            summary_columns = [
+                column for column in summary_columns
+                if column in torque_summary_df.columns
+            ]
+            st.dataframe(
+                torque_summary_df[summary_columns],
+                width="stretch",
+                hide_index=True,
+                column_config={
+                    "mean": st.column_config.NumberColumn(format="%.3f"),
+                    "std": st.column_config.NumberColumn(format="%.4f"),
+                    "cp": st.column_config.NumberColumn(format="%.3f"),
+                    "cpl": st.column_config.NumberColumn(format="%.3f"),
+                    "cpu": st.column_config.NumberColumn(format="%.3f"),
+                    "cpk": st.column_config.NumberColumn(format="%.3f"),
+                    "out_of_spec_pct": st.column_config.NumberColumn(format="%.2f%%"),
+                },
+            )
+
     c1, c2, c3 = st.columns(3)
 
     with c1:
@@ -1910,27 +2334,23 @@ def render_capability_tab(
         )
 
     station_df = df[df["device_id"] == selected_station].copy()
+    station_df = prepare_homogeneous_capability_groups(station_df, variable_col)
 
-    task_options = ["Todas"]
-
-    if "task_label" in station_df.columns:
-        task_options += sorted(
-            [
-                str(x).strip()
-                for x in station_df["task_label"].dropna().unique().tolist()
-                if str(x).strip() and str(x).strip().lower() != "nan"
-            ]
-        )
+    group_options = []
+    if not station_df.empty:
+        group_options = station_df["_capability_group_label"].drop_duplicates().tolist()
 
     with c3:
-        selected_task = st.selectbox(
-            "Task / PSet",
-            task_options,
-            key="capability_task_selector",
+        selected_group = st.selectbox(
+            "Proceso / PSet y límites",
+            group_options,
+            key="capability_group_selector_v062",
         )
 
-    if selected_task != "Todas" and "task_label" in station_df.columns:
-        station_df = station_df[station_df["task_label"] == selected_task]
+    if selected_group:
+        station_df = station_df[
+            station_df["_capability_group_label"] == selected_group
+        ]
 
     if station_df.empty:
         st.warning(
@@ -1960,7 +2380,7 @@ def render_capability_tab(
     target = get_last_numeric_value(station_df, target_col)
     usl = get_last_numeric_value(station_df, usl_col)
 
-    mean, std, cp, cpk = calculate_cp_cpk(values, lsl, usl)
+    mean, std, cp, cpl, cpu, cpk = calculate_cp_cpk(values, lsl, usl)
 
     out_spec = 0
 
@@ -1969,16 +2389,22 @@ def render_capability_tab(
 
     out_spec_pct = (out_spec / len(values) * 100) if len(values) else 0
 
-    status = get_capability_status(cpk)
+    status = get_capability_status(
+        cpk,
+        sample_count=len(values),
+        minimum_samples=minimum_samples,
+    )
 
-    m1, m2, m3, m4, m5, m6 = st.columns(6)
+    m1, m2, m3, m4, m5, m6, m7, m8 = st.columns(8)
 
     m1.metric("N", len(values))
     m2.metric("Media", format_capability_value(mean, 3))
     m3.metric("Std", format_capability_value(std, 4))
     m4.metric("Cp", format_capability_value(cp, 3))
-    m5.metric("Cpk", format_capability_value(cpk, 3))
-    m6.metric("Estatus", status)
+    m5.metric("CPL", format_capability_value(cpl, 3))
+    m6.metric("CPU", format_capability_value(cpu, 3))
+    m7.metric("Cpk", format_capability_value(cpk, 3))
+    m8.metric("Estatus", status)
 
     s1, s2, s3, s4 = st.columns(4)
 
@@ -1991,6 +2417,18 @@ def render_capability_tab(
         st.warning(
             "No se encontraron límites LSL/USL para esta variable. "
             "La campana se mostrará, pero Cp/Cpk no se puede evaluar formalmente."
+        )
+
+    if std is not None and pd.notna(std) and std < MIN_CAPABILITY_STD:
+        st.warning(
+            "La variación observada es menor que la resolución mínima configurada. "
+            "No se publica Cp/Cpk para evitar un valor artificialmente enorme."
+        )
+
+    if len(values) < minimum_samples:
+        st.warning(
+            f"Hay {len(values)} muestras; se requieren al menos {minimum_samples} "
+            "para clasificar formalmente la capacidad."
         )
 
     fig = make_capability_gauss_chart(
@@ -2012,7 +2450,11 @@ def render_capability_tab(
 
     st.markdown("### Interpretación")
 
-    if cpk is None:
+    if len(values) < minimum_samples:
+        st.info(
+            "El Cp/Cpk mostrado, si está disponible, es preliminar por tamaño de muestra."
+        )
+    elif cpk is None:
         st.info(
             "Se requiere desviación estándar válida y límites de especificación para calcular Cp/Cpk."
         )
@@ -2550,6 +2992,435 @@ def render_msa_tab(clean_df, devices_for_model, selected_model):
         )
 
 
+def normalize_tightening_id(value):
+    if pd.isna(value):
+        return ""
+
+    text = str(value).strip()
+
+    if text.lower() in {"", "nan", "none"}:
+        return ""
+
+    try:
+        return str(int(float(text)))
+    except Exception:
+        return text
+
+
+def add_asg_match_status(pieces_df, tightenings_df, asg_df):
+    pieces = pieces_df.copy()
+    tightenings = tightenings_df.copy()
+
+    if pieces.empty:
+        return pieces, tightenings
+
+    if tightenings.empty:
+        pieces["matched_tightenings"] = 0
+        pieces["plc_tightenings"] = 0
+        pieces["torques_obtenidos"] = ""
+        pieces["torque_promedio"] = None
+        pieces["torque_min_pieza"] = None
+        pieces["torque_max_pieza"] = None
+        pieces["match_status"] = "Sin atornillados"
+        return pieces, tightenings
+
+    tightenings["normalized_tightening_id"] = tightenings["tightening_id"].map(
+        normalize_tightening_id
+    )
+    tightenings["match_key"] = (
+        tightenings["asg_device_id"].fillna("").astype(str)
+        + "|"
+        + tightenings["normalized_tightening_id"]
+    )
+
+    asg_keys = set()
+    asg_devices_with_data = set()
+
+    if (
+        not asg_df.empty
+        and "device_id" in asg_df.columns
+        and "tightening_id" in asg_df.columns
+    ):
+        asg_reference = asg_df[["device_id", "tightening_id"]].copy()
+        asg_devices_with_data = set(
+            asg_reference["device_id"].fillna("").astype(str).str.strip()
+        )
+        asg_reference["normalized_tightening_id"] = asg_reference["tightening_id"].map(
+            normalize_tightening_id
+        )
+        asg_reference = asg_reference[
+            asg_reference["normalized_tightening_id"] != ""
+        ]
+        asg_keys = set(
+            asg_reference["device_id"].fillna("").astype(str)
+            + "|"
+            + asg_reference["normalized_tightening_id"]
+        )
+
+    tightenings["asg_match"] = (
+        (tightenings["normalized_tightening_id"] != "")
+        & tightenings["match_key"].isin(asg_keys)
+    )
+
+    final_tightenings = tightenings.copy()
+    if "is_final_attempt" in final_tightenings.columns:
+        final_tightenings = final_tightenings[
+            final_tightenings["is_final_attempt"] == 1
+        ]
+
+    torque_summary_rows = []
+    if "torque_actual" in final_tightenings.columns:
+        final_tightenings["torque_actual"] = pd.to_numeric(
+            final_tightenings["torque_actual"], errors="coerce"
+        )
+
+        for attempt_key, attempt_df in final_tightenings.groupby(
+            "attempt_key", dropna=False
+        ):
+            if "screw_position" in attempt_df.columns:
+                attempt_df = attempt_df.sort_values("screw_position")
+
+            valid_torques = attempt_df.dropna(subset=["torque_actual"])
+            torque_values = valid_torques["torque_actual"]
+
+            torque_labels = []
+            for _, tightening_row in valid_torques.iterrows():
+                torque_value = (
+                    f"{float(tightening_row['torque_actual']):.3f}"
+                    .rstrip("0")
+                    .rstrip(".")
+                )
+                screw_position = tightening_row.get("screw_position", "")
+                try:
+                    screw_label = f"T{int(float(screw_position))}"
+                except Exception:
+                    screw_label = "T"
+                torque_labels.append(f"{screw_label}: {torque_value}")
+
+            torque_summary_rows.append(
+                {
+                    "attempt_key": attempt_key,
+                    "torques_obtenidos": " | ".join(torque_labels),
+                    "torque_promedio": torque_values.mean() if not torque_values.empty else None,
+                    "torque_min_pieza": torque_values.min() if not torque_values.empty else None,
+                    "torque_max_pieza": torque_values.max() if not torque_values.empty else None,
+                }
+            )
+
+    match_summary = (
+        final_tightenings.groupby("attempt_key", dropna=False)
+        .agg(
+            plc_tightenings=("tightening_id", "count"),
+            matched_tightenings=("asg_match", "sum"),
+        )
+        .reset_index()
+    )
+
+    pieces = pieces.merge(match_summary, on="attempt_key", how="left")
+
+    if torque_summary_rows:
+        pieces = pieces.merge(
+            pd.DataFrame(torque_summary_rows),
+            on="attempt_key",
+            how="left",
+        )
+    else:
+        pieces["torques_obtenidos"] = ""
+        pieces["torque_promedio"] = None
+        pieces["torque_min_pieza"] = None
+        pieces["torque_max_pieza"] = None
+
+    pieces["plc_tightenings"] = pieces["plc_tightenings"].fillna(0).astype(int)
+    pieces["matched_tightenings"] = pieces["matched_tightenings"].fillna(0).astype(int)
+    pieces["torques_obtenidos"] = pieces["torques_obtenidos"].fillna("")
+
+    def get_match_status(row):
+        total = int(row.get("plc_tightenings", 0))
+        matched = int(row.get("matched_tightenings", 0))
+        asg_device = str(row.get("asg_device_id", "")).strip()
+
+        if total == 0:
+            return "Sin atornillados"
+        if asg_device and asg_device not in asg_devices_with_data:
+            return "ASG sin datos en la sesión"
+        if matched == total:
+            return "Confirmado ASG + PLC"
+        if matched > 0:
+            return "Coincidencia parcial"
+        return "Sin coincidencia ASG"
+
+    pieces["match_status"] = pieces.apply(get_match_status, axis=1)
+    return pieces, tightenings
+
+
+def filter_plc_traceability_data(
+    df,
+    selected_model,
+    selected_devices,
+    count_scope,
+    active_session_info,
+    time_window_minutes,
+    last_n=None,
+):
+    if df.empty:
+        return df.copy()
+
+    filtered = df.copy()
+
+    if "running_model" in filtered.columns:
+        filtered = filtered[filtered["running_model"] == selected_model]
+
+    if "asg_device_id" in filtered.columns:
+        filtered = filtered[filtered["asg_device_id"].isin(selected_devices)]
+
+    if "plc_timestamp" in filtered.columns:
+        filtered = filtered.dropna(subset=["plc_timestamp"])
+
+        if count_scope == "Sesión actual":
+            session_start = pd.to_datetime(
+                active_session_info.get("production_session_started_at", ""),
+                errors="coerce",
+            )
+            if pd.notna(session_start):
+                filtered = filtered[filtered["plc_timestamp"] >= session_start]
+
+        if time_window_minutes is not None:
+            cutoff = pd.Timestamp.now() - pd.Timedelta(minutes=time_window_minutes)
+            filtered = filtered[filtered["plc_timestamp"] >= cutoff]
+
+        filtered = filtered.sort_values("plc_timestamp")
+
+    if last_n and not filtered.empty and "device_id" in filtered.columns:
+        filtered = filtered.groupby("device_id", group_keys=False).tail(last_n)
+
+    return filtered.copy()
+
+
+def render_qr_traceability_tab(
+    pieces_df,
+    attempts_df,
+    tightenings_df,
+    asg_df,
+    selected_model,
+    selected_devices,
+    selected_result,
+    count_scope,
+    active_session_info,
+    time_window_minutes,
+    last_n,
+):
+    st.subheader("Trazabilidad QR")
+    st.caption("Piezas confirmadas por logfile PLC y comparación con datos en vivo ASG.")
+    st.caption(
+        "Validación ASG compara los IDs de apriete del PLC contra el colector en vivo. "
+        "Es una comprobación de integridad; no determina si la pieza es OK o NG."
+    )
+
+    pieces_df, tightenings_df = add_asg_match_status(
+        pieces_df=pieces_df,
+        tightenings_df=tightenings_df,
+        asg_df=asg_df,
+    )
+
+    pieces = filter_plc_traceability_data(
+        pieces_df,
+        selected_model,
+        selected_devices,
+        count_scope,
+        active_session_info,
+        time_window_minutes,
+        last_n,
+    )
+    attempts = filter_plc_traceability_data(
+        attempts_df,
+        selected_model,
+        selected_devices,
+        count_scope,
+        active_session_info,
+        time_window_minutes,
+    )
+    tightenings = filter_plc_traceability_data(
+        tightenings_df,
+        selected_model,
+        selected_devices,
+        count_scope,
+        active_session_info,
+        time_window_minutes,
+    )
+
+    if pieces.empty:
+        st.info(
+            f"No hay logfiles procesados para {selected_model} con los filtros actuales. "
+            "La vista se llenará automáticamente cuando el PLC tenga SD y genere su logfile."
+        )
+        return
+
+    if selected_result == "OK":
+        pieces = pieces[pieces["attempt_result"] == "OK"]
+    elif selected_result == "NG":
+        pieces = pieces[pieces["attempt_result"] != "OK"]
+
+    if pieces.empty:
+        st.info("No hay piezas con el resultado seleccionado.")
+        return
+
+    search_qr = st.text_input(
+        "Buscar QR",
+        placeholder="Escribe o escanea el código QR",
+        key="qr_traceability_search",
+    ).strip()
+
+    if search_qr:
+        pieces = pieces[
+            pieces["qr_code"].fillna("").astype(str).str.contains(
+                search_qr,
+                case=False,
+                regex=False,
+            )
+        ]
+
+    if pieces.empty:
+        st.warning("No se encontró un QR que coincida con la búsqueda.")
+        return
+
+    unique_qr = pieces["qr_code"].dropna().astype(str).nunique()
+    ok_records = int((pieces["attempt_result"] == "OK").sum())
+    issue_records = int((pieces["attempt_result"] != "OK").sum())
+    retries = int(
+        (pieces["attempts_for_qr_station"].fillna(1).astype(int) - 1)
+        .clip(lower=0)
+        .sum()
+    )
+    confirmed = int((pieces["match_status"] == "Confirmado ASG + PLC").sum())
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("QR únicos", unique_qr)
+    c2.metric("Registros OK", ok_records)
+    c3.metric("NG / incompletos", issue_records)
+    c4.metric("Reintentos", retries)
+    c5.metric("Confirmados ASG", confirmed)
+
+    st.markdown("### Piezas por estación")
+
+    piece_columns = [
+        "plc_timestamp",
+        "qr_code",
+        "running_model",
+        "device_id",
+        "station",
+        "process",
+        "captured_screws",
+        "declared_screws",
+        "torques_obtenidos",
+        "torque_promedio",
+        "torque_min_pieza",
+        "torque_max_pieza",
+        "attempt_result",
+        "attempts_for_qr_station",
+        "alarm_codes",
+        "match_status",
+    ]
+    piece_columns = [column for column in piece_columns if column in pieces.columns]
+
+    st.dataframe(
+        pieces[piece_columns].sort_values("plc_timestamp", ascending=False),
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "torques_obtenidos": st.column_config.TextColumn(
+                "Torques obtenidos (cN·m)",
+                width="large",
+            ),
+            "torque_promedio": st.column_config.NumberColumn(
+                "Torque promedio",
+                format="%.3f",
+            ),
+            "torque_min_pieza": st.column_config.NumberColumn(
+                "Torque mín. pieza",
+                format="%.3f",
+            ),
+            "torque_max_pieza": st.column_config.NumberColumn(
+                "Torque máx. pieza",
+                format="%.3f",
+            ),
+            "match_status": st.column_config.TextColumn("Validación ASG"),
+        },
+    )
+
+    qr_options = sorted(
+        pieces["qr_code"].dropna().astype(str).unique().tolist()
+    )
+    selected_qr = st.selectbox(
+        "Detalle de pieza",
+        qr_options,
+        key="qr_traceability_detail",
+    )
+
+    qr_attempts = attempts[
+        attempts["qr_code"].fillna("").astype(str) == selected_qr
+    ].copy()
+    qr_tightenings = tightenings[
+        tightenings["qr_code"].fillna("").astype(str) == selected_qr
+    ].copy()
+
+    st.markdown("### Intentos y recorrido")
+    attempt_columns = [
+        "plc_timestamp",
+        "device_id",
+        "station",
+        "process",
+        "attempt_number",
+        "captured_screws",
+        "declared_screws",
+        "attempt_result",
+        "alarm_codes",
+        "is_final_attempt",
+    ]
+    attempt_columns = [column for column in attempt_columns if column in qr_attempts.columns]
+
+    st.dataframe(
+        qr_attempts[attempt_columns].sort_values("plc_timestamp"),
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.markdown("### Atornillados asociados")
+    tightening_columns = [
+        "plc_timestamp",
+        "device_id",
+        "station",
+        "attempt_number",
+        "screw_position",
+        "tightening_id",
+        "torque_actual",
+        "torque_min",
+        "torque_target",
+        "torque_max",
+        "angle_actual",
+        "tightening_result",
+        "asg_match",
+    ]
+    tightening_columns = [
+        column for column in tightening_columns
+        if column in qr_tightenings.columns
+    ]
+
+    st.dataframe(
+        qr_tightenings[tightening_columns].sort_values(
+            ["plc_timestamp", "screw_position"]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+
+    with st.expander("Ver todos los campos del QR"):
+        st.dataframe(
+            qr_attempts.sort_values("plc_timestamp"),
+            width="stretch",
+            hide_index=True,
+        )
+
+
 
 def render_results_table(df):
     st.subheader("Últimos resultados")
@@ -2651,12 +3522,12 @@ def render_about_tab():
         - La hora interna del ASG se conserva como **timestamp_asg** en tabla y hover.
         - Esto evita diferencias cuando una estación ASG tiene una hora interna distinta.
 
-        **Cálculo de piezas y tiempos de ciclo:**
+        **Conteo de producción y tiempos de ciclo:**
 
-        - Cada estación tiene configurada su cantidad de tornillos por pieza.
-        - Las piezas completas se calculan agrupando resultados de torque.
-        - El tiempo de ciclo se calcula entre el inicio de una pieza y el inicio de la siguiente.
-        - El tiempo de atornillado se calcula entre el primer y último tornillo de la misma pieza.
+        - Las piezas producidas se cuentan por QR final con resultado OK en el PLC.
+        - El conteo nunca se infiere dividiendo la cantidad de tornillos.
+        - El ASG se usa para estimar los tiempos de ciclo entre grupos consecutivos de apriete.
+        - El tiempo de atornillado usa el primer y último torque del grupo ASG.
         - Los cálculos se pueden guardar en CSV desde la pestaña Tiempos de ciclo.
 
         **Modelos soportados:**
@@ -2710,6 +3581,7 @@ def main():
             [
                 "Vista general",
                 "Dashboard por estación",
+                "Trazabilidad QR",
                 "Tiempos de ciclo",
                 "Capacidad",
                 "MSA",
@@ -2830,6 +3702,12 @@ def main():
         selected_model=selected_model,
         devices_for_model=devices_for_model,
     )
+    plc_status_payload = load_plc_status()
+    plc_status_df = status_to_dataframe(plc_status_payload)
+    plc_status_df_for_view = filter_plc_status_for_model(
+        status_df=plc_status_df,
+        devices_for_model=devices_for_model,
+    )
 
     clean_df = load_clean_data()
 
@@ -2864,11 +3742,14 @@ def main():
     live_pages = [
         "Vista general",
         "Dashboard por estación",
+        "Trazabilidad QR",
         "Tabla de datos",
     ]
 
     if selected_page == "Vista general":
         render_device_status(status_df_for_view)
+        st.divider()
+        render_plc_ftp_status(plc_status_df_for_view)
         st.divider()
         render_summary_metrics(filtered_df)
 
@@ -2885,6 +3766,25 @@ def main():
             chart_height=station_chart_height,
         )
 
+    elif selected_page == "Trazabilidad QR":
+        plc_pieces_df, plc_attempts_df, plc_tightenings_df = (
+            load_plc_traceability_data()
+        )
+
+        render_qr_traceability_tab(
+            pieces_df=plc_pieces_df,
+            attempts_df=plc_attempts_df,
+            tightenings_df=plc_tightenings_df,
+            asg_df=clean_df_for_view,
+            selected_model=selected_model,
+            selected_devices=selected_devices,
+            selected_result=selected_result,
+            count_scope=count_scope,
+            active_session_info=active_session_info,
+            time_window_minutes=time_window_minutes,
+            last_n=last_n,
+        )
+
     elif selected_page == "Tiempos de ciclo":
         cycle_base_df = filter_cycle_base_data(
             clean_df_for_view,
@@ -2894,20 +3794,46 @@ def main():
             time_window_minutes=time_window_minutes,
         )
 
+        plc_pieces_df, _, _ = load_plc_traceability_data()
+        plc_pieces_for_count = filter_plc_traceability_data(
+            plc_pieces_df,
+            selected_model=selected_model,
+            selected_devices=selected_devices,
+            count_scope=count_scope,
+            active_session_info=active_session_info,
+            time_window_minutes=None,
+            last_n=None,
+        )
+
         render_cycle_time_tab(
             cycle_base_df=cycle_base_df,
+            plc_pieces_df=plc_pieces_for_count,
             devices_for_model=devices_for_model,
             selected_model=selected_model,
         )
 
     elif selected_page == "Capacidad":
-        capability_base_df = filter_data(
+        asg_capability_df = filter_data(
             clean_df_for_view,
             selected_model=selected_model,
             selected_devices=selected_devices,
             selected_result="Todos",
             last_n=last_n,
             time_window_minutes=time_window_minutes,
+        )
+        _, _, plc_tightenings_df = load_plc_traceability_data()
+        plc_capability_df = filter_plc_traceability_data(
+            plc_tightenings_df,
+            selected_model=selected_model,
+            selected_devices=selected_devices,
+            count_scope=count_scope,
+            active_session_info=active_session_info,
+            time_window_minutes=time_window_minutes,
+            last_n=last_n,
+        )
+        capability_base_df = prepare_hybrid_capability_data(
+            asg_df=asg_capability_df,
+            plc_tightenings_df=plc_capability_df,
         )
 
         render_capability_tab(
@@ -2942,7 +3868,8 @@ def main():
     elif auto_refresh and selected_page not in live_pages:
         st.caption(
             "Auto-refresh pausado en esta vista para evitar el efecto nublado. "
-            "El auto-refresh solo queda activo en Vista general, Dashboard por estación y Tabla de datos."
+            "El auto-refresh solo queda activo en Vista general, Dashboard por estación, "
+            "Trazabilidad QR y Tabla de datos."
         )
 
 

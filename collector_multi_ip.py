@@ -323,6 +323,9 @@ def build_raw_row(raw_packet: str, device_info: dict, running_model: str, sessio
         "port": device_info.get("port", ""),
         "models_supported": device_info.get("models", ""),
         "running_model": running_model,
+        "production_session_id": session_info.get("production_session_id", ""),
+        "production_session_started_at": session_info.get("production_session_started_at", ""),
+        "production_session_mode": session_info.get("production_session_mode", ""),
         "process": device_info.get("process", ""),
         "station_type": device_info.get("station_type", ""),
         "mid": packet.get("mid", ""),
@@ -381,6 +384,7 @@ def device_worker(
     logging.info("Iniciando worker %s | %s:%s", device_id, ip, port)
 
     retry_seconds = 5
+    consecutive_failures = 0
 
     while not stop_event.is_set():
         sock = None
@@ -395,12 +399,16 @@ def device_worker(
 
             print(f"[{device_id}] Conectando a {ip}:{port}...")
             sock = connect_asg(ip, port)
+            consecutive_failures = 0
+            retry_seconds = 5
 
             update_device_status(
                 device_id,
                 connected=True,
                 state="connected",
                 last_error="",
+                consecutive_failures=0,
+                retry_seconds=0,
             )
 
             print(f"[{device_id}] Conexión TCP exitosa.")
@@ -510,14 +518,22 @@ def device_worker(
 
         except Exception as e:
             msg = str(e)
+            consecutive_failures += 1
             print(f"[{device_id}] Error: {msg}")
-            logging.exception("%s error: %s", device_id, msg)
+            logging.warning(
+                "%s no disponible (intento %s): %s",
+                device_id,
+                consecutive_failures,
+                msg,
+            )
 
             update_device_status(
                 device_id,
                 connected=False,
                 state="error_retrying",
                 last_error=msg,
+                consecutive_failures=consecutive_failures,
+                retry_seconds=retry_seconds,
             )
 
             if sock is not None:
@@ -527,7 +543,8 @@ def device_worker(
                     pass
 
             if not stop_event.is_set():
-                time.sleep(retry_seconds)
+                stop_event.wait(retry_seconds)
+                retry_seconds = min(retry_seconds * 2, 60)
 
     update_device_status(
         device_id,

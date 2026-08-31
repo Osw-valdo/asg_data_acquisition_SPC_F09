@@ -19,6 +19,8 @@ logs/
 # Datos de producción
 data/raw_live/
 data/raw_imports/
+data/plc_raw/
+data/plc_processed/
 data/processed/
 data/exports/
 data/stations/
@@ -27,17 +29,18 @@ database/
 *.sqlite
 *.sqlite3
 
-# Temporales
+# Temporales y respaldos
 *.tmp
 *.bak
 *.backup
+*_backup_before_*.py
+inventario_proyecto.txt
+codigo_para_revision.zip
 
-# Sistema operativo
+# Sistema operativo e IDEs
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# IDEs
 .vscode/
 .idea/
 
