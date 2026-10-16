@@ -1,4 +1,4 @@
 @echo off
-cd /d C:\asg_data_acquisition_SPC_F09
+cd /d %~dp0
 call .venv\Scripts\activate
 python asg_launcher.py
