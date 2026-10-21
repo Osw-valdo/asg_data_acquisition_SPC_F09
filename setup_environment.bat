@@ -30,7 +30,7 @@ exit /b 0
 
 :python_missing
 echo ERROR: No se encontro el Python Launcher "py" ni una instalacion Python 3 utilizable.
-echo Instala Python 3.10 o superior y habilita el Python Launcher; despues vuelve a ejecutar este archivo.
+echo Instala Python 3.12 o superior y habilita el Python Launcher; despues vuelve a ejecutar este archivo.
 exit /b 1
 
 :setup_failed

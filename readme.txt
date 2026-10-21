@@ -2,6 +2,11 @@ BITACORA DEL PROYECTO
 Actualizada: 2026-10-21
 
 CAMBIOS RECIENTES
+- README.md se amplió como guía de mantenimiento para otros agentes: arquitectura,
+  flujos ASG/FTP, comandos, configuración, salidas, seguridad, diagnóstico y
+  limitaciones actuales para PLC de ensamble.
+- Se corrigio el requisito documentado de Python a 3.12+, que es el minimo
+  indicado por NumPy 2.5.1 incluido en requirements.txt.
 - Se agregaron ASG_11 y ASG_12, estaciones CLON compartidas para T1XX-1 y T1XX-2.
 - Se agregaron PLC_11 y PLC_12; ambos usan FTP por el puerto 21.
 - Las tablas ASG/PLC coinciden en estación, modulo, proceso, modelos y tornillos por pieza.
@@ -30,7 +35,7 @@ CAMBIOS RECIENTES
 
 PARA CONTINUAR
 - Abrir el repositorio en la rama osw-valdo-analisis-repositorio para ver estos cambios.
-- Ejecutar run_launcher.bat; el primer inicio requiere Python 3.10+ y puede tardar
+- Ejecutar run_launcher.bat; el primer inicio requiere Python 3.12+ y puede tardar
   mientras se instala requirements.txt.
 - Para probar FTP, ejecutar:
   .venv\Scripts\python.exe check_ftp_stations.py
