@@ -1,5 +1,14 @@
 @echo off
-cd /d %~dp0
-call .venv\Scripts\activate
-streamlit run app.py --server.port 8502
+setlocal
+cd /d "%~dp0"
+call "%~dp0setup_environment.bat"
+if errorlevel 1 goto :failed
+
+"%~dp0.venv\Scripts\python.exe" -m streamlit run "%~dp0app.py" --server.port 8502
+set "EXIT_CODE=%ERRORLEVEL%"
 pause
+exit /b %EXIT_CODE%
+
+:failed
+pause
+exit /b 1

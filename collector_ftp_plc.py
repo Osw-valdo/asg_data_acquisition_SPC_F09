@@ -216,9 +216,12 @@ def download_device(
         result["last_error"] = str(error)
         return result
     finally:
-        try:
-            ftp.quit()
-        except all_errors:
+        if ftp.sock is not None:
+            try:
+                ftp.quit()
+            except all_errors:
+                ftp.close()
+        else:
             ftp.close()
 
 
