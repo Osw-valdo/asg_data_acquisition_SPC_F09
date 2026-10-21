@@ -9,3 +9,5 @@ enabled,device_id,station,module_name,ip,port,models,process,station_type,torque
 1,ASG_08,Lever to concave Mirror,25002-07-04,10.132.160.212,4545,T1XX-2,HDS111,exclusive,cN·m,4,4
 1,ASG_09,Lens Holder Pre-assy,25002-01-05,10.132.160.205,4545,T1XX-2,HDS311,exclusive,cN·m,3,3
 1,ASG_10,Concave Mirror Assy To Lower Case,25002-09-04,10.132.160.217,4545,T1XX-2,HUD01,exclusive,cN·m,5,5
+1,ASG_11,Heatsink Assy & Screwing CLON,26001-09-05,10.132.160.156,4545,T1XX-1|T1XX-2,HDS302,shared,cN·m,4,4
+1,ASG_12,Upper Case To Lower Case CLON,26001-08-04,10.132.160.148,4545,T1XX-1|T1XX-2,HUD07,shared,cN·m,6,6
