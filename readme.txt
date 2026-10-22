@@ -7,6 +7,9 @@ CAMBIOS RECIENTES
   limitaciones actuales para PLC de ensamble.
 - Se corrigio el requisito documentado de Python a 3.12+, que es el minimo
   indicado por NumPy 2.5.1 incluido en requirements.txt.
+- read_assembly_log_ftp.py ahora puede ejecutarse sin argumentos: pregunta IP,
+  puerto FTP y credenciales; oculta la contraseña y crea una carpeta local basada
+  en la IP. Las opciones --device y --ip siguen disponibles.
 - Se agregaron ASG_11 y ASG_12, estaciones CLON compartidas para T1XX-1 y T1XX-2.
 - Se agregaron PLC_11 y PLC_12; ambos usan FTP por el puerto 21.
 - Las tablas ASG/PLC coinciden en estación, modulo, proceso, modelos y tornillos por pieza.
@@ -41,6 +44,8 @@ PARA CONTINUAR
   .venv\Scripts\python.exe check_ftp_stations.py
 - Para descargar el logfile de prueba de un PLC registrado:
   .venv\Scripts\python.exe read_assembly_log_ftp.py --device PLC_11
+- Para modo interactivo (pregunta IP, puerto y credenciales):
+  .venv\Scripts\python.exe read_assembly_log_ftp.py
 - Para un PLC no registrado, usar --ip, --port y --device-id; si la ruta o nombre
   remoto difiere, indicar --remote-dir y --remote-name.
 - Para recolectar, abrir asg_launcher.py y seleccionar "Iniciar sistema completo"

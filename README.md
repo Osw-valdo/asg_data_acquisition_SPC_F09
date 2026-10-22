@@ -252,22 +252,32 @@ ensamble use el mismo patrón.
 
 ### Prueba puntual de logfile de ensamble
 
-Si el PLC ya existe como fila habilitada en `config/plc_devices.csv`:
+Para iniciar el lector en modo interactivo, ejecuta sin argumentos:
+
+```bat
+.venv\Scripts\python.exe read_assembly_log_ftp.py
+```
+
+El programa pregunta la IP y el puerto FTP (Enter acepta el puerto 21), luego
+solicita el usuario y la contraseña (la contraseña no se muestra mientras se
+escribe). Crea automáticamente un identificador local a partir de la IP y
+guarda el logfile en `data\plc_raw\<ID>\`. Este modo solicita credenciales en
+cada ejecución y no utiliza las variables de entorno.
+
+También se puede indicar un equipo registrado en `config/plc_devices.csv`:
 
 ```bat
 .venv\Scripts\python.exe read_assembly_log_ftp.py --device PLC_11
 ```
 
-El ID anterior es solo un ejemplo de PLC configurado; el archivo no contiene aún
-un inventario específico de PLC de ensamble. Para una IP temporal que todavía no
-está en el CSV:
+O indicar la IP directamente para evitar las preguntas de IP y puerto:
 
 ```bat
-.venv\Scripts\python.exe read_assembly_log_ftp.py --ip 192.0.2.10 --port 21 --device-id ENSAMBLE_01
+.venv\Scripts\python.exe read_assembly_log_ftp.py --ip IP_DEL_PLC --port 21 --device-id ENSAMBLE_01
 ```
 
-La IP `192.0.2.10` es un ejemplo reservado, no una dirección de planta. Sustitúyela
-por la IP real autorizada.
+En estos modos explícitos, las credenciales se leen de `SPC_PLC_FTP_USER` y
+`SPC_PLC_FTP_PASSWORD` cuando están definidas; si faltan, el programa las solicita.
 
 El lector solicita fecha y ruta por omisión usando el patrón de atornillado.
 Para PLC de ensamble que use otra estructura, especifica las opciones:
@@ -276,8 +286,9 @@ Para PLC de ensamble que use otra estructura, especifica las opciones:
 .venv\Scripts\python.exe read_assembly_log_ftp.py --ip IP_DEL_PLC --port 21 --device-id ENSAMBLE_01 --remote-dir /RUTA/REMOTA --remote-name archivo.csv
 ```
 
-También acepta `--date AAAA-MM-DD` y `--timeout SEGUNDOS`. La descarga se guarda
-en `data/plc_raw/<ID>/<nombre>`, primero en un archivo temporal y luego como
+En todos los modos se pueden pasar `--date AAAA-MM-DD`, `--timeout SEGUNDOS`,
+`--remote-dir` y `--remote-name`. La descarga se guarda en
+`data/plc_raw/<ID>/<nombre>`, primero en un archivo temporal y luego como
 archivo final. El script **no interpreta** QR, estado de pieza, ni resultados;
 el archivo debe revisarse para documentar su formato antes de diseñar un parser.
 

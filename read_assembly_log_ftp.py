@@ -5,6 +5,7 @@ from ftplib import FTP, all_errors
 from getpass import getpass
 from pathlib import Path
 import argparse
+import ipaddress
 import os
 import re
 
@@ -55,13 +56,42 @@ def resolve_device(args: argparse.Namespace) -> dict:
             "ftp_port": device["ftp_port"],
         }
 
-    if not re.fullmatch(r"[A-Za-z0-9_-]+", args.device_id):
+    ip = args.ip
+    port = args.port
+    device_id = args.device_id
+
+    if not ip:
+        ip = input("IP del PLC: ").strip()
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError as error:
+            raise ValueError(f"Dirección IP inválida: {ip}") from error
+
+        if port is None:
+            port_text = input("Puerto FTP [21]: ").strip()
+            try:
+                port = int(port_text) if port_text else 21
+            except ValueError as error:
+                raise ValueError("El puerto FTP debe ser numérico.") from error
+
+    try:
+        ipaddress.ip_address(ip)
+    except ValueError as error:
+        raise ValueError(f"Dirección IP inválida: {ip}") from error
+
+    if not device_id:
+        safe_ip = re.sub(r"[^A-Za-z0-9_-]", "_", ip)
+        device_id = f"PLC_{safe_ip}"
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", device_id):
         raise ValueError("--device-id solo puede contener letras, números, _ y -.")
 
+    port = port or 21
+    if not 1 <= port <= 65535:
+        raise ValueError("El puerto FTP debe estar entre 1 y 65535.")
     return {
-        "device_id": args.device_id,
-        "ip": args.ip,
-        "ftp_port": args.port,
+        "device_id": device_id,
+        "ip": ip,
+        "ftp_port": port,
     }
 
 
@@ -120,7 +150,7 @@ def parse_args() -> argparse.Namespace:
             "No interpreta los datos ni modifica el PLC."
         )
     )
-    target = parser.add_mutually_exclusive_group(required=True)
+    target = parser.add_mutually_exclusive_group()
     target.add_argument(
         "--device",
         help="ID de un PLC habilitado en config/plc_devices.csv.",
@@ -131,13 +161,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--device-id",
-        default="ASSEMBLY_TEST",
-        help="Nombre de carpeta local cuando se usa --ip (predeterminado: ASSEMBLY_TEST).",
+        help="Nombre de carpeta local cuando se usa --ip.",
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=21,
+        default=None,
         help="Puerto FTP cuando se usa --ip (predeterminado: 21).",
     )
     parser.add_argument(
@@ -164,8 +193,10 @@ def parse_args() -> argparse.Namespace:
 
     if args.timeout < 1:
         parser.error("--timeout debe ser de al menos 1 segundo.")
-    if not 1 <= args.port <= 65535:
+    if args.port is not None and not 1 <= args.port <= 65535:
         parser.error("--port debe estar entre 1 y 65535.")
+    if args.device and (args.device_id or args.port is not None):
+        parser.error("--device no se puede combinar con --device-id ni --port.")
 
     default_dir, default_name = default_remote_paths(args.date)
     args.remote_dir = args.remote_dir or default_dir
@@ -177,16 +208,21 @@ def main() -> int:
     args = parse_args()
     try:
         device = resolve_device(args)
-    except (FileNotFoundError, ValueError) as error:
-        print(f"Error de configuración: {error}")
+    except (EOFError, FileNotFoundError, ValueError) as error:
+        print(f"Error al seleccionar el PLC: {error}")
         return 1
 
-    username = os.getenv("SPC_PLC_FTP_USER", "").strip()
-    password = os.getenv("SPC_PLC_FTP_PASSWORD", "")
-    if not username:
-        username = input("Usuario FTP del PLC: ").strip()
-    if not password:
-        password = getpass("Contraseña FTP: ")
+    interactive = not args.device and not args.ip
+    username = "" if interactive else os.getenv("SPC_PLC_FTP_USER", "").strip()
+    password = "" if interactive else os.getenv("SPC_PLC_FTP_PASSWORD", "")
+    try:
+        if not username:
+            username = input("Usuario FTP del PLC: ").strip()
+        if not password:
+            password = getpass("Contraseña FTP: ")
+    except EOFError as error:
+        print(f"Error al leer las credenciales FTP: {error}")
+        return 1
     if not username or not password:
         print("Error: usuario y contraseña FTP son obligatorios.")
         return 1
@@ -207,7 +243,7 @@ def main() -> int:
             remote_name=args.remote_name,
             timeout=args.timeout,
         )
-    except (all_errors, OSError, ValueError) as error:
+    except all_errors + (ValueError,) as error:
         print(f"Error al leer el logfile por FTP: {error}")
         return 1
 
