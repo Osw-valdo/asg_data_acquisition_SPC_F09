@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+import base64
 import json
 import time
 import math
@@ -28,6 +29,13 @@ from src.asg_config import get_enabled_devices, get_devices_by_model
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+GENERIC_LOGO_PATH = PROJECT_ROOT / "assets" / "brand" / "logo_f09.png"
+COMPANY_LOGO_PATH = PROJECT_ROOT / "assets" / "brand" / "logo_nsna.png"
+LOGO_PATH = (
+    COMPANY_LOGO_PATH
+    if COMPANY_LOGO_PATH.exists()
+    else GENERIC_LOGO_PATH
+)
 
 DATA_DIR = PROJECT_ROOT / "data"
 PROCESSED_DIR = DATA_DIR / "processed"
@@ -45,9 +53,10 @@ MIN_CAPABILITY_STD = 0.001
 
 st.set_page_config(
     page_title="ASG SPC F09",
-    page_icon="🐖",
+    page_icon=":material/analytics:",
     layout="wide",
 )
+st.logo(LOGO_PATH, size="medium", icon_image=LOGO_PATH)
 
 
 def today_str():
@@ -127,7 +136,7 @@ def get_time_window_minutes(option):
     return mapping.get(option, 30)
 
 
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=2)
 def load_status():
     if not STATUS_FILE.exists():
         return {}
@@ -139,7 +148,7 @@ def load_status():
         return {}
 
 
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=2)
 def load_plc_status():
     if not PLC_STATUS_FILE.exists():
         return {}
@@ -151,7 +160,7 @@ def load_plc_status():
         return {}
 
 
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=2)
 def load_clean_data():
     today_file = PROCESSED_DIR / f"asg_clean_master_{today_str()}.csv"
 
@@ -233,7 +242,7 @@ def load_clean_data():
     return df
 
 
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=2)
 def load_plc_traceability_data():
     suffix = today_str()
     files = {
@@ -289,7 +298,7 @@ def load_plc_traceability_data():
 
 
 
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=2)
 def load_session_state():
     if not SESSION_FILE.exists():
         return {"models": {}}
@@ -307,7 +316,6 @@ def load_session_state():
         return {"models": {}}
 
 
-@st.cache_data(ttl=1)
 def load_launcher_selection():
     """
     Lee la selección realizada desde asg_launcher.py.
@@ -475,6 +483,94 @@ def safe_customdata(df, columns):
             temp[col] = ""
 
     return temp[columns].fillna("").values
+
+
+def render_dashboard_header(selected_model, selected_page):
+    with st.container(border=True):
+        title_col, info_col = st.columns([2.5, 1.5], vertical_alignment="center")
+        with title_col:
+            st.caption("SISTEMA DE MONITOREO · LÍNEA F09")
+            st.title("ASG Data Acquisition")
+            st.caption(
+                "Supervisión de aprietes, conectividad y trazabilidad de producción."
+            )
+
+        with info_col:
+            with st.container(horizontal_alignment="right"):
+                st.badge(
+                    selected_model,
+                    icon=":material/precision_manufacturing:",
+                    color="green",
+                )
+                st.badge(
+                    selected_page,
+                    icon=":material/dashboard:",
+                    color="gray",
+                )
+            st.caption(
+                datetime.now().strftime("%d/%m/%Y · %H:%M"),
+                text_alignment="right",
+            )
+
+
+def render_result_badge(result):
+    normalized_result = str(result).strip().upper()
+    if normalized_result in {"OK", "PASS"}:
+        st.badge(normalized_result, icon=":material/check_circle:", color="green")
+    elif normalized_result in {"NG", "NOK", "FAIL"}:
+        st.badge("NG", icon=":material/error:", color="red")
+    else:
+        st.badge(
+            normalized_result or "Sin datos",
+            icon=":material/schedule:",
+            color="gray",
+        )
+
+
+def notify_new_result(df, selected_model):
+    if df.empty:
+        return
+
+    model_df = df
+    if "running_model" in model_df.columns:
+        model_df = model_df[model_df["running_model"] == selected_model]
+    if model_df.empty:
+        return
+
+    timestamp_col = (
+        "plot_timestamp"
+        if "plot_timestamp" in model_df.columns
+        else "pc_timestamp"
+    )
+    if timestamp_col in model_df.columns:
+        model_df = model_df.sort_values(timestamp_col)
+
+    latest = model_df.iloc[-1]
+    timestamp = pd.to_datetime(latest.get(timestamp_col), errors="coerce")
+    timestamp_key = timestamp.isoformat() if pd.notna(timestamp) else ""
+    result = str(latest.get("result_label", "")).strip().upper()
+    device_id = str(latest.get("device_id", "")).strip()
+    tightening_id = str(latest.get("tightening_id", "")).strip()
+    result_key = "|".join(
+        [device_id, timestamp_key, tightening_id, result]
+    )
+    state_key = f"dashboard_last_result_{selected_model}"
+    previous_result_key = st.session_state.get(state_key)
+    st.session_state[state_key] = result_key
+
+    if previous_result_key is None or previous_result_key == result_key:
+        return
+
+    if result in {"NG", "NOK", "FAIL"}:
+        st.toast(
+            f"Nuevo resultado NG en {device_id}",
+            icon=":material/error:",
+        )
+    elif result in {"OK", "PASS"}:
+        st.toast(
+            f"Nuevo resultado OK en {device_id}",
+            icon=":material/check_circle:",
+        )
 
 
 def filter_data(
@@ -881,16 +977,16 @@ def render_device_status(status_df):
 
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric("Equipos monitoreados", total_count)
-    col2.metric("Conectados", connected_count)
-    col3.metric("Desconectados", total_count - connected_count)
+    col1.metric("Equipos monitoreados", total_count, border=True)
+    col2.metric("Conectados", connected_count, border=True)
+    col3.metric("Desconectados", total_count - connected_count, border=True)
 
     total_results = 0
 
     if "total_results" in status_df.columns:
         total_results = pd.to_numeric(status_df["total_results"], errors="coerce").fillna(0).sum()
 
-    col4.metric("Resultados recibidos", int(total_results))
+    col4.metric("Resultados recibidos", int(total_results), border=True)
 
     display_cols = [
         "device_id",
@@ -945,10 +1041,10 @@ def render_plc_ftp_status(status_df):
     )
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("PLCs esperados", len(status_df))
-    c2.metric("FTP conectado", connected)
-    c3.metric("Logfile disponible", files_available)
-    c4.metric("Con error", errors)
+    c1.metric("PLCs esperados", len(status_df), border=True)
+    c2.metric("FTP conectado", connected, border=True)
+    c3.metric("Logfile disponible", files_available, border=True)
+    c4.metric("Con error", errors, border=True)
 
     if updated:
         st.caption(f"Archivos actualizados en el último ciclo: {updated}")
@@ -981,7 +1077,7 @@ def render_summary_metrics(df):
     st.subheader("Resumen de resultados")
 
     if df.empty:
-        st.info("Todavía no hay resultados cocinados para mostrar.")
+        st.caption("Sin resultados de apriete para los filtros seleccionados.")
         return
 
     total = len(df)
@@ -997,26 +1093,34 @@ def render_summary_metrics(df):
 
     col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric("Resultados filtrados", total)
-    col2.metric("OK", ok_count)
-    col3.metric("NG", ng_count)
-    col4.metric("% OK", f"{ok_pct:.1f}%")
+    col1.metric("Resultados filtrados", total, border=True)
+    col2.metric("OK", ok_count, border=True)
+    col3.metric("NG", ng_count, border=True)
+    col4.metric("% OK", f"{ok_pct:.1f}%", border=True)
 
     last_row = df.tail(1)
 
     if not last_row.empty:
         row = last_row.iloc[0]
 
-        st.markdown("### Último resultado")
-
-        c1, c2, c3, c4, c5, c6 = st.columns(6)
-
-        c1.metric("ASG", row.get("device_id", ""))
-        c2.metric("Proceso", row.get("process", ""))
-        c3.metric("Torque", fmt_value(row.get("torque_actual", ""), 2))
-        c4.metric("Ángulo", fmt_value(row.get("angle_actual", ""), 0))
-        c5.metric("Resultado", row.get("result_label", ""))
-        c6.metric("Task", row.get("task_label", ""))
+        with st.container(border=True):
+            st.markdown("**Último resultado**")
+            st.caption(
+                f"{row.get('device_id', '')} · {row.get('process', '')} · "
+                f"{row.get('task_label', '')}"
+            )
+            with st.container(horizontal=True):
+                st.metric(
+                    "Torque",
+                    fmt_value(row.get("torque_actual", ""), 2),
+                    border=True,
+                )
+                st.metric(
+                    "Ángulo",
+                    fmt_value(row.get("angle_actual", ""), 0),
+                    border=True,
+                )
+                render_result_badge(row.get("result_label", ""))
 
 
 def make_station_torque_chart(
@@ -1261,6 +1365,19 @@ def render_station_dashboard_grid(
                     task_label = latest.get("task_label", "")
                     torque_unit = latest.get("torque_unit", config.get("torque_unit", ""))
                     results_count = len(station_df)
+                    last_timestamp = latest.get(
+                        "plot_timestamp",
+                        latest.get("pc_timestamp"),
+                    )
+                    parsed_timestamp = pd.to_datetime(
+                        last_timestamp,
+                        errors="coerce",
+                    )
+                    last_reading = (
+                        parsed_timestamp.strftime("%H:%M:%S")
+                        if pd.notna(parsed_timestamp)
+                        else "Sin lectura reciente"
+                    )
                 else:
                     station_name = config.get("station", "")
                     module_name = config.get("module_name", "")
@@ -1271,17 +1388,22 @@ def render_station_dashboard_grid(
                     task_label = "Sin datos"
                     torque_unit = config.get("torque_unit", "")
                     results_count = 0
+                    last_reading = "Sin lectura reciente"
 
                 with st.container(border=True):
                     st.markdown(f"### {device_id} | {process}")
                     st.caption(f"{station_name} | Módulo: {module_name}")
+                    st.caption(f"Última lectura: {last_reading}")
+                    render_result_badge(result)
 
-                    m1, m2, m3, m4 = st.columns(4)
-
-                    m1.metric("Torque", f"{torque_actual} {torque_unit}")
-                    m2.metric("Ángulo", angle_actual)
-                    m3.metric("Resultado", result)
-                    m4.metric("Ciclos", results_count)
+                    with st.container(horizontal=True):
+                        st.metric(
+                            "Torque",
+                            f"{torque_actual} {torque_unit}".strip(),
+                            border=True,
+                        )
+                        st.metric("Ángulo", angle_actual, border=True)
+                        st.metric("Ciclos", results_count, border=True)
 
                     st.caption(f"Task actual: {task_label}")
 
@@ -3569,9 +3691,170 @@ def render_about_tab():
     )
 
 
+def render_welcome_curtain():
+    if st.session_state.get("welcome_curtain_shown"):
+        return
+
+    st.session_state["welcome_curtain_shown"] = True
+    theme_type = st.context.theme.type
+    if theme_type not in {"light", "dark"}:
+        theme_type = "light"
+
+    colors = {
+        "light": {
+            "background": "#F4F7F4",
+            "text": "#1F2328",
+            "muted": "#526157",
+            "mark": "#166534",
+            "track": "#D6E3D8",
+            "accent": "#16803C",
+        },
+        "dark": {
+            "background": "#101813",
+            "text": "#F4F7F4",
+            "muted": "#A7B5AA",
+            "mark": "#8DE39E",
+            "track": "#29382D",
+            "accent": "#36A853",
+        },
+    }[theme_type]
+    logo_data_uri = (
+        "data:image/png;base64,"
+        + base64.b64encode(LOGO_PATH.read_bytes()).decode("ascii")
+    )
+
+    curtain_html = """
+        <style>
+            @keyframes f09-curtain-dismiss {
+                0%, 68% { opacity: 1; visibility: visible; }
+                100% { opacity: 0; visibility: hidden; }
+            }
+
+            @keyframes f09-curtain-arrive {
+                from { opacity: 0; transform: translateY(12px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            #f09-welcome-curtain {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                display: grid;
+                place-items: center;
+                background: __BACKGROUND__;
+                color: __TEXT__;
+                pointer-events: none;
+                animation: f09-curtain-dismiss 2.2s ease-out forwards;
+            }
+
+            #f09-welcome-curtain .f09-welcome-content {
+                text-align: center;
+                animation: f09-curtain-arrive 0.55s ease-out both;
+            }
+
+            #f09-welcome-curtain .f09-welcome-logo {
+                display: block;
+                width: 220px;
+                max-width: 70vw;
+                max-height: 96px;
+                margin: 0 auto;
+                object-fit: contain;
+                filter: drop-shadow(0 0 18px __SHADOW__);
+            }
+
+            #f09-welcome-curtain .f09-welcome-line-label {
+                display: block;
+                margin-top: 14px;
+                color: __MARK__;
+                font: 600 12px/1.2 sans-serif;
+                letter-spacing: 0.14em;
+            }
+
+            #f09-welcome-curtain .f09-welcome-credit {
+                margin: 22px 0 0;
+                color: __MUTED__;
+                font: 13px/1.5 sans-serif;
+                letter-spacing: 0.01em;
+            }
+
+            #f09-welcome-curtain h1 {
+                margin: 18px 0 8px;
+                color: __TEXT__;
+                font: 600 30px/1.2 sans-serif;
+            }
+
+            #f09-welcome-curtain p {
+                margin: 0;
+                color: __MUTED__;
+                font: 14px/1.5 sans-serif;
+                letter-spacing: 0.04em;
+            }
+
+            #f09-welcome-curtain .f09-welcome-line {
+                width: 150px;
+                height: 3px;
+                margin: 28px auto 0;
+                overflow: hidden;
+                border-radius: 3px;
+                background: __TRACK__;
+            }
+
+            #f09-welcome-curtain .f09-welcome-line::after {
+                display: block;
+                width: 45%;
+                height: 100%;
+                border-radius: inherit;
+                background: __ACCENT__;
+                content: "";
+                animation: f09-curtain-progress 1.1s ease-in-out infinite;
+            }
+
+            @keyframes f09-curtain-progress {
+                from { transform: translateX(-110%); }
+                to { transform: translateX(240%); }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                #f09-welcome-curtain,
+                #f09-welcome-curtain .f09-welcome-content,
+                #f09-welcome-curtain .f09-welcome-line::after {
+                    animation-duration: 1ms;
+                    animation-iteration-count: 1;
+                }
+            }
+        </style>
+        <div id="f09-welcome-curtain" role="status" aria-label="Cargando dashboard F09">
+            <div class="f09-welcome-content">
+                <img class="f09-welcome-logo" src="__LOGO_DATA_URI__" alt="Logo de la empresa">
+                <span class="f09-welcome-line-label">LÍNEA F09</span>
+                <h1>ASG Data Acquisition</h1>
+                <p>Preparando dashboard de producción</p>
+                <div class="f09-welcome-line" aria-hidden="true"></div>
+                <p class="f09-welcome-credit">Desarrollado por: Ing. Oswaldo Cantú Casillas</p>
+            </div>
+        </div>
+        """
+    for placeholder, color in {
+        "__BACKGROUND__": colors["background"],
+        "__TEXT__": colors["text"],
+        "__MUTED__": colors["muted"],
+        "__MARK__": colors["mark"],
+        "__TRACK__": colors["track"],
+        "__ACCENT__": colors["accent"],
+        "__SHADOW__": (
+            "rgba(54, 168, 83, 0.25)"
+            if theme_type == "dark"
+            else "rgba(22, 128, 60, 0.16)"
+        ),
+        "__LOGO_DATA_URI__": logo_data_uri,
+    }.items():
+        curtain_html = curtain_html.replace(placeholder, color)
+
+    st.html(curtain_html)
+
+
 def main():
-    st.title("🔩 ASG Data Acquisition SPC F09")
-    st.caption("Dashboard multi-IP para ASG-NW2500 / Open Protocol")
+    render_welcome_curtain()
 
     with st.sidebar:
         st.header("Vista")
@@ -3591,8 +3874,6 @@ def main():
             ],
             index=0,
         )
-
-        st.divider()
 
         st.header("Controles")
 
@@ -3662,38 +3943,38 @@ def main():
 
         time_window_minutes = get_time_window_minutes(time_window_option)
 
-        st.divider()
-        st.markdown("### Gráficas")
+        with st.expander("Ajustes de gráficas"):
+            show_markers = st.checkbox("Mostrar marcadores", value=True)
+            show_limits = st.checkbox("Mostrar límites de torque", value=True)
+            auto_scale = st.checkbox("Autoescala", value=True)
 
-        show_markers = st.checkbox("Mostrar marcadores", value=True)
-        show_limits = st.checkbox("Mostrar límites torque", value=True)
-        auto_scale = st.checkbox("Auto escala", value=True)
+            station_chart_columns = st.slider(
+                "Columnas por estación",
+                min_value=1,
+                max_value=4,
+                value=2,
+                step=1,
+            )
 
-        station_chart_columns = st.slider(
-            "Columnas dashboard estaciones",
-            min_value=1,
-            max_value=4,
-            value=2,
-            step=1,
-        )
+            station_chart_height = st.slider(
+                "Altura de gráfica",
+                min_value=250,
+                max_value=600,
+                value=330,
+                step=50,
+            )
 
-        station_chart_height = st.slider(
-            "Altura gráfica estación",
-            min_value=250,
-            max_value=600,
-            value=330,
-            step=50,
-        )
-
-        show_angle_station_grid = st.checkbox(
-            "Mostrar gráfica de ángulo por estación",
-            value=False,
-        )
+            show_angle_station_grid = st.checkbox(
+                "Mostrar gráfica de ángulo",
+                value=False,
+            )
 
         st.divider()
 
         auto_refresh = st.checkbox("Auto refresh", value=True)
         refresh_seconds = st.slider("Refresh segundos", 1, 30, 1)
+
+    render_dashboard_header(selected_model, selected_page)
 
     status_payload = load_status()
     status_df = status_to_dataframe(status_payload)
@@ -3747,11 +4028,10 @@ def main():
     ]
 
     if selected_page == "Vista general":
-        render_device_status(status_df_for_view)
-        st.divider()
-        render_plc_ftp_status(plc_status_df_for_view)
-        st.divider()
+        notify_new_result(clean_df, selected_model)
         render_summary_metrics(filtered_df)
+        render_device_status(status_df_for_view)
+        render_plc_ftp_status(plc_status_df_for_view)
 
     elif selected_page == "Dashboard por estación":
         render_station_dashboard_grid(

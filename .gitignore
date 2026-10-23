@@ -12,6 +12,9 @@ __pycache__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Marca privada de la empresa; mantenerla solo localmente
+assets/brand/logo_nsna.png
+
 # Logs
 logs/
 *.log

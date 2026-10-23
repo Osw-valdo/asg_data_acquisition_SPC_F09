@@ -1,0 +1,17 @@
+[theme.light]
+primaryColor = "#16803C"
+greenColor = "#16803C"
+greenBackgroundColor = "#DCFCE7"
+greenTextColor = "#166534"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F7F4"
+textColor = "#1F2328"
+
+[theme.dark]
+primaryColor = "#16803C"
+greenColor = "#36A853"
+greenBackgroundColor = "#16351F"
+greenTextColor = "#8DE39E"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#1B211D"
+textColor = "#E6E9E6"
