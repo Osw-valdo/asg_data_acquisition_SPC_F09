@@ -26,6 +26,7 @@ data/plc_raw/
 data/plc_processed/
 data/processed/
 data/exports/
+data/auth/
 data/stations/
 database/
 *.db

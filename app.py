@@ -1,9 +1,14 @@
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import base64
+import html
 import json
+import os
 import time
 import math
+import urllib.error
+import urllib.parse
+import urllib.request
 import sys
 import asyncio
 
@@ -26,6 +31,7 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 
 from src.asg_config import get_enabled_devices, get_devices_by_model
+from src import auth
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -3595,6 +3601,205 @@ def render_results_table(df):
     )
 
 
+def _close_easter_egg():
+    st.session_state["egg_open"] = False
+
+
+@st.dialog("🥚 ¡Sorpresa!", on_dismiss=_close_easter_egg)
+def show_easter_egg():
+    import streamlit.components.v1 as components
+
+    components.html(
+        """
+        <canvas id="c" style="position:fixed;inset:0;width:100%;height:100%"></canvas>
+        <div style="position:relative;font-family:sans-serif;text-align:center;
+                    padding-top:70px;font-size:26px;font-weight:700;color:#2e9e5b">
+          🎉 Felicidades, encontraste el huevo de pascua 🥚
+        </div>
+        <script>
+        const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+        cv.width = innerWidth; cv.height = innerHeight;
+        const colors = ['#2e9e5b','#f7c948','#e4572e','#3a86ff','#ff5d8f','#8338ec'];
+        const P = Array.from({length: 160}, () => ({
+          x: Math.random()*cv.width, y: -Math.random()*cv.height,
+          w: 6+Math.random()*6, h: 8+Math.random()*8,
+          vy: 2+Math.random()*3, vx: -1+Math.random()*2,
+          a: Math.random()*6.28, va: -.2+Math.random()*.4,
+          c: colors[Math.floor(Math.random()*colors.length)]
+        }));
+        (function draw(){
+          ctx.clearRect(0,0,cv.width,cv.height);
+          P.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.a += p.va;
+            if (p.y > cv.height) { p.y = -10; p.x = Math.random()*cv.width; }
+            ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+            ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+          });
+          requestAnimationFrame(draw);
+        })();
+        </script>
+        """,
+        height=260,
+    )
+
+
+def render_download_banner():
+    open_panel = st.session_state.get("dl_panel_open", False)
+
+    with st.container(border=True):
+        text_col, btn_col = st.columns([3, 1], vertical_alignment="center")
+        text_col.markdown(
+            "#### :material/download: Descarga de datos procesados\n"
+            "Elige un rango de fechas y descarga el torque de atornillado "
+            "o los archivos FTP de los PLC."
+        )
+        label = "Cerrar" if open_panel else "Descargar datos"
+        if btn_col.button(
+            label,
+            type="primary",
+            width="stretch",
+            icon=":material/close:" if open_panel else ":material/download:",
+            key="dl_toggle",
+        ):
+            st.session_state["dl_panel_open"] = not open_panel
+            st.rerun()
+
+    if open_panel:
+        render_downloads_panel()
+
+
+API_BASE_URL = os.environ.get("ASG_API_URL", "http://127.0.0.1:8600").rstrip("/")
+
+
+def api_request(path, params, timeout=60):
+    """Llama a la API. Devuelve (bytes, content_type) o lanza RuntimeError con un mensaje legible."""
+    clean = {k: v for k, v in params.items() if v not in (None, "", [])}
+    url = f"{API_BASE_URL}{path}?{urllib.parse.urlencode(clean)}"
+    request = urllib.request.Request(url, headers={"X-User": st.session_state.get("auth_user", {}).get("username", "")})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read(), response.headers.get("Content-Type", "")
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = json.loads(exc.read().decode("utf-8")).get("detail", "")
+        except Exception:
+            detail = ""
+        raise RuntimeError(detail or f"La API respondió con error {exc.code}.")
+    except (urllib.error.URLError, TimeoutError, OSError):
+        raise RuntimeError(f"No se pudo conectar con la API en {API_BASE_URL}. ¿Está corriendo run_api.bat?")
+
+
+def render_downloads_panel():
+    st.caption("Los datos se obtienen de la API. El refresco automático se pausa mientras este panel está abierto.")
+
+    with st.container(border=True):
+        st.markdown("**1. Rango de fechas**")
+        today = datetime.now().date()
+        date_range = st.date_input(
+            "Desde / hasta",
+            value=(today - timedelta(days=6), today),
+            key="dl_date_range",
+        )
+
+        st.markdown("**2. Tipo de dato**")
+        data_type = st.radio(
+            "Fuente",
+            ["Torque de atornillado (ASG)", "Archivos FTP de PLC (logfiles)"],
+            horizontal=True,
+            key="dl_data_type",
+        )
+
+        st.markdown("**3. Filtros**")
+        col_a, col_b, col_c = st.columns(3)
+        is_torque = data_type.startswith("Torque")
+        try:
+            station_ids = get_enabled_devices()["device_id"].tolist()
+        except Exception:
+            station_ids = []
+        model = col_a.selectbox("Modelo", ["Todos", "T1XX-1", "T1XX-2"], key="dl_model", disabled=not is_torque)
+        stations = col_b.multiselect(
+            "Estación" if is_torque else "PLC (ID)",
+            station_ids if is_torque else [],
+            placeholder="Todas" if is_torque else "Todos",
+            key="dl_stations",
+            disabled=not is_torque,
+        )
+        result = col_c.selectbox("Resultado", ["Todos", "OK", "NOK"], key="dl_result", disabled=not is_torque)
+
+        st.markdown("**4. Formato**")
+        if is_torque:
+            fmt = st.radio("Formato", ["CSV", "Excel (.xlsx)"], horizontal=True, key="dl_fmt")
+        else:
+            st.radio("Formato", ["ZIP con logfiles originales"], key="dl_fmt_ftp")
+
+    valid_range = isinstance(date_range, (tuple, list)) and len(date_range) == 2
+    if not valid_range:
+        st.warning("Selecciona fecha inicial y final.")
+        return
+    start, end = date_range
+
+    params = {"start": start.isoformat(), "end": end.isoformat()}
+    if is_torque:
+        params.update(
+            {
+                "station": ",".join(stations),
+                "model": None if model == "Todos" else model,
+                "result": None if result == "Todos" else result,
+            }
+        )
+        summary_path = "/torque/summary"
+    else:
+        summary_path = "/ftp/files"
+
+    st.markdown("**Resumen de la descarga**")
+    summary = None
+    try:
+        raw, _ = api_request(summary_path, params, timeout=30)
+        summary = json.loads(raw)
+    except RuntimeError as exc:
+        st.error(str(exc))
+
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Días seleccionados", (end - start).days + 1)
+    if summary and is_torque:
+        m2.metric("Registros", f"{summary['rows']:,}")
+        m3.metric("Estaciones con datos", len(summary["stations"]))
+    elif summary:
+        m2.metric("Archivos", f"{summary['files']:,}")
+        m3.metric("Tamaño", f"{summary['bytes'] / 1_048_576:,.1f} MB")
+    else:
+        m2.metric("Registros", "—")
+        m3.metric("Tamaño", "—")
+
+    if st.button("Preparar descarga", type="primary", icon=":material/download:", disabled=summary is None):
+        download_params = dict(params)
+        if is_torque:
+            download_params["format"] = "xlsx" if fmt.startswith("Excel") else "csv"
+        try:
+            with st.spinner("Generando archivo..."):
+                body, content_type = api_request("/torque" if is_torque else "/ftp", download_params, timeout=300)
+            if is_torque:
+                ext = "xlsx" if fmt.startswith("Excel") else "csv"
+                file_name = f"torque_{start}_{end}.{ext}"
+            else:
+                ext = "zip"
+                file_name = f"plc_logs_{start}_{end}.zip"
+            st.session_state["dl_ready"] = {"data": body, "name": file_name, "mime": content_type or "application/octet-stream"}
+        except RuntimeError as exc:
+            st.session_state.pop("dl_ready", None)
+            st.error(str(exc))
+
+    ready = st.session_state.get("dl_ready")
+    if ready:
+        st.download_button(
+            f"Guardar {ready['name']}",
+            data=ready["data"],
+            file_name=ready["name"],
+            mime=ready["mime"],
+            icon=":material/save:",
+        )
+
+
 def render_config_tab():
     st.subheader("Equipos configurados")
 
@@ -3830,7 +4035,6 @@ def render_welcome_curtain():
                 <h1>ASG Data Acquisition</h1>
                 <p>Preparando dashboard de producción</p>
                 <div class="f09-welcome-line" aria-hidden="true"></div>
-                <p class="f09-welcome-credit">Desarrollado por: Ing. Oswaldo Cantú Casillas</p>
             </div>
         </div>
         """
@@ -3853,10 +4057,428 @@ def render_welcome_curtain():
     st.html(curtain_html)
 
 
+@st.cache_data(show_spinner=False)
+def _upscaled_logo_uri(path_str, mtime):
+    from io import BytesIO
+
+    from PIL import Image
+
+    img = Image.open(path_str).convert("RGBA")
+    img = img.resize((img.width * 3, img.height * 3), Image.Resampling.LANCZOS)
+    buffer = BytesIO()
+    img.save(buffer, format="PNG", optimize=True)
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode()
+
+
+def render_login_logo(is_dark):
+    if not LOGO_PATH.exists():
+        return
+
+    uri = _upscaled_logo_uri(str(LOGO_PATH), LOGO_PATH.stat().st_mtime)
+    # El texto del logo es blanco; en tema claro se coloca sobre una placa oscura.
+    plate = (
+        "background:#16241B;border-radius:14px;padding:12px 22px;"
+        if not is_dark
+        else ""
+    )
+    st.html(
+        f"""
+        <div style="display:flex;justify-content:center;margin-bottom:0.6rem;">
+            <div style="{plate}">
+                <img src="{uri}" alt="Logo" style="display:block;width:170px;height:auto;">
+            </div>
+        </div>
+        """
+    )
+
+
+def render_login_screen():
+    is_dark = st.context.theme.type == "dark"
+    palette = {
+        "bg1": "#0B120E" if is_dark else "#F4F8F4",
+        "bg2": "#14261A" if is_dark else "#DCEBDF",
+        "card": "rgba(20, 31, 24, 0.82)" if is_dark else "rgba(255, 255, 255, 0.86)",
+        "border": "rgba(141, 227, 158, 0.18)" if is_dark else "rgba(22, 101, 52, 0.14)",
+        "text": "#F4F7F4" if is_dark else "#14301F",
+        "muted": "#9DB0A2" if is_dark else "#5B6F61",
+        "accent": "#8DE39E" if is_dark else "#166534",
+        "shadow": "0 30px 80px rgba(0,0,0,0.55)" if is_dark else "0 30px 80px rgba(22,101,52,0.16)",
+    }
+    css = """
+        <style>
+        [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
+        [data-testid="stHeader"] { display: none; }
+        html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"],
+        [data-testid="stMain"] {
+            overflow: hidden !important;
+            height: 100vh;
+        }
+        [data-testid="stMain"] [data-testid="stMainBlockContainer"] {
+            max-height: 100vh;
+            overflow: hidden;
+        }
+        [data-testid="stApp"] {
+            background:
+                radial-gradient(900px 500px at 15% 10%, __BG2__ 0%, transparent 60%),
+                radial-gradient(800px 500px at 90% 95%, __BG2__ 0%, transparent 55%),
+                __BG1__;
+        }
+        .block-container {
+            padding-top: 9vh;
+            padding-left: 1rem; padding-right: 1rem;
+            max-width: 100% !important;
+        }
+        .st-key-login_card {
+            width: min(480px, 100%);
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        @keyframes f09-login-in {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .st-key-login_card {
+            animation: f09-login-in 0.9s cubic-bezier(.2,.7,.2,1) 2.6s both;
+            background: __CARD__;
+            backdrop-filter: blur(14px);
+            border: 1px solid __BORDER__;
+            border-top: 3px solid __ACCENT__;
+            border-radius: 18px;
+            box-shadow: __SHADOW__;
+            padding: 2rem 2.2rem 1.6rem;
+        }
+        .f09-login-head { text-align: center; margin-bottom: 1.2rem; }
+        .f09-login-head .eyebrow {
+            font-size: 0.72rem; letter-spacing: 0.28em; font-weight: 600;
+            color: __ACCENT__;
+        }
+        .f09-login-head h2 {
+            margin: 0.35rem 0 0.2rem; padding: 0; font-size: 1.55rem;
+            font-weight: 650; letter-spacing: -0.01em; color: __TEXT__;
+        }
+        .f09-login-head p { margin: 0; font-size: 0.88rem; color: __MUTED__; }
+        .f09-login-rule {
+            height: 1px; margin: 1rem auto 0; width: 64px;
+            background: linear-gradient(90deg, transparent, __ACCENT__, transparent);
+        }
+        .st-key-login_card [data-testid="stImage"] img { margin: 0 auto; }
+        .st-key-login_card [data-testid="stForm"] {
+            border: 0; padding: 0;
+        }
+        .st-key-login_card label p {
+            font-size: 0.78rem; letter-spacing: 0.04em; color: __MUTED__;
+        }
+        .st-key-login_card [data-baseweb="input"] {
+            border-radius: 10px;
+        }
+        .st-key-login_card button[kind="primaryFormSubmit"],
+        .st-key-login_card button[kind="primary"] {
+            border-radius: 10px; height: 2.8rem; font-weight: 600;
+            letter-spacing: 0.04em; margin-top: 0.4rem;
+        }
+        .f09-landing-note {
+            text-align: center; font-size: 0.9rem; color: __MUTED__;
+            margin-bottom: 1rem;
+        }
+        .st-key-landing_actions { gap: 0.7rem; }
+        .st-key-landing_actions button {
+            border-radius: 10px; height: 2.9rem; font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .f09-login-foot {
+            text-align: center; margin-top: 1rem; font-size: 0.72rem;
+            color: __MUTED__;
+        }
+        </style>
+        """
+    for key, value in {
+        "__BG1__": palette["bg1"],
+        "__BG2__": palette["bg2"],
+        "__CARD__": palette["card"],
+        "__BORDER__": palette["border"],
+        "__TEXT__": palette["text"],
+        "__MUTED__": palette["muted"],
+        "__ACCENT__": palette["accent"],
+        "__SHADOW__": palette["shadow"],
+    }.items():
+        css = css.replace(key, value)
+    mode_now = st.session_state.get("auth_mode", "landing")
+    if not auth.has_users():
+        mode_now = "first_admin"
+    if mode_now in ("signup", "first_admin"):
+        css = css.replace("overflow: hidden !important;\n            height: 100vh;", "overflow-y: auto !important;\n            height: 100vh;")
+        css = css.replace("max-height: 100vh;\n            overflow: hidden;", "padding-bottom: 4rem;")
+    st.markdown(css, unsafe_allow_html=True)
+
+    with st.container():
+        with st.container(key="login_card"):
+            render_login_logo(is_dark)
+            st.markdown(
+                """
+                <div class="f09-login-head">
+                    <div class="eyebrow">LÍNEA F09</div>
+                    <h2>ASG Data Acquisition</h2>
+                    <p>Acceso al panel de producción</p>
+                    <div class="f09-login-rule"></div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            mode = st.session_state.get("auth_mode", "landing")
+            if not auth.has_users():
+                mode = "first_admin"
+
+            if mode == "landing":
+                st.markdown(
+                    '<div class="f09-landing-note">Inicia sesión o crea tu cuenta para continuar</div>',
+                    unsafe_allow_html=True,
+                )
+                with st.container(key="landing_actions"):
+                    if st.button("Iniciar sesión", type="primary", width="stretch", key="go_login"):
+                        st.session_state["auth_mode"] = "login"
+                        st.rerun()
+                    if st.button("Registrarse", width="stretch", key="go_signup"):
+                        st.session_state["auth_mode"] = "signup"
+                        st.rerun()
+
+            elif mode == "first_admin":
+                st.info("Primer uso: crea la cuenta de administrador.")
+                with st.form("first_admin_form"):
+                    username = st.text_input("Usuario")
+                    name = st.text_input("Nombre completo")
+                    password = st.text_input("Contraseña (mín. 8 caracteres)", type="password")
+                    confirm = st.text_input("Confirmar contraseña", type="password")
+                    submitted = st.form_submit_button(
+                        "Crear administrador", type="primary", width="stretch"
+                    )
+                if submitted:
+                    if password != confirm:
+                        st.error("Las contraseñas no coinciden.")
+                    else:
+                        try:
+                            auth.create_user(username, password, "admin", name)
+                            st.session_state["auth_mode"] = "login"
+                            st.rerun()
+                        except ValueError as exc:
+                            st.error(str(exc))
+
+            elif mode == "signup":
+                st.markdown("**Crear cuenta**")
+                with st.form("signup_form"):
+                    username = st.text_input("Usuario")
+                    name = st.text_input("Nombre completo")
+                    password = st.text_input("Contraseña (mín. 8 caracteres)", type="password")
+                    confirm = st.text_input("Confirmar contraseña", type="password")
+                    submitted = st.form_submit_button(
+                        "Crear cuenta", type="primary", width="stretch"
+                    )
+                if submitted:
+                    if password != confirm:
+                        st.error("Las contraseñas no coinciden.")
+                    else:
+                        try:
+                            auth.register_user(username, password, name)
+                            st.session_state["auth_mode"] = "login"
+                            st.session_state["auth_notice"] = (
+                                "Cuenta creada con rol Operador. Inicia sesión; "
+                                "un administrador puede ampliar tus permisos."
+                            )
+                            st.rerun()
+                        except ValueError as exc:
+                            st.error(str(exc))
+                if st.button("← Volver", key="signup_back", width="stretch"):
+                    st.session_state["auth_mode"] = "landing"
+                    st.rerun()
+
+            else:
+                notice = st.session_state.pop("auth_notice", None)
+                if notice:
+                    st.success(notice)
+                with st.form("login_form"):
+                    username = st.text_input("Usuario")
+                    password = st.text_input("Contraseña", type="password")
+                    submitted = st.form_submit_button(
+                        "Iniciar sesión", type="primary", width="stretch"
+                    )
+                if submitted:
+                    user = auth.authenticate(username, password)
+                    if user:
+                        st.session_state["auth_user"] = user
+                        st.session_state["login_transition"] = True
+                        render_login_transition(user)
+                        st.rerun()
+                    else:
+                        time.sleep(1)
+                        st.error("Usuario o contraseña incorrectos.")
+                if st.button("← Volver", key="login_back", width="stretch"):
+                    st.session_state["auth_mode"] = "landing"
+                    st.rerun()
+
+            st.markdown(
+                '<div class="f09-login-foot">Desarrollado por: Ing. Oswaldo Cantú Casillas</div>',
+                unsafe_allow_html=True,
+            )
+
+
+ROLE_ICONS = {
+    "admin": '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z"/><rect x="5" y="19" width="14" height="2" rx="1"/>',
+    "engineer": '<circle cx="12" cy="12" r="3.2" fill="none" stroke="COLOR" stroke-width="2"/><path d="M12 2l1.2 2.6 2.7.8 2.4-1.5 2 2-1.5 2.4.8 2.7L22 12l-2.4 1.2-.8 2.7 1.5 2.4-2 2-2.4-1.5-2.7.8L12 22l-1.2-2.4-2.7-.8-2.4 1.5-2-2 1.5-2.4-.8-2.7L2 12l2.4-1.2.8-2.7-1.5-2.4 2-2 2.4 1.5 2.7-.8z" fill="none" stroke="COLOR" stroke-width="1.8" stroke-linejoin="round"/>',
+    "operator": '<path d="M16 3l5 5-2.2 2.2-5-5z"/><path d="M13.6 6.4l4 4-6.6 6.6-4-4z"/><path d="M9.2 14.8l-3.6 3.6c-.8.8-.8 2 0 2.8.8.8 2 .8 2.8 0l3.6-3.6z"/>',
+}
+
+
+ICON_VIEWBOX = {
+    "admin": "0 1 24 24",
+    "engineer": "0 0 24 24",
+    "operator": "1 0.5 24 24",
+}
+
+
+def render_user_badge(user):
+    is_dark = st.context.theme.type == "dark"
+    ring = "#8DE39E" if is_dark else "#166534"
+    bg = "rgba(141,227,158,0.14)" if is_dark else "rgba(22,101,52,0.10)"
+    muted = "#9DB0A2" if is_dark else "#5B6F61"
+    role_label = auth.ROLES[user["role"]]
+    shapes = ROLE_ICONS.get(user["role"], ROLE_ICONS["operator"]).replace("COLOR", ring)
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{ICON_VIEWBOX.get(user['role'], '0 0 24 24')}" fill="{ring}">'
+        f"{shapes}</svg>"
+    )
+    icon_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+    st.html(
+        f"""
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:6px 0 10px;">
+            <div style="flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.3;">
+                <div style="font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{html.escape(user['name'])}</div>
+                <div style="font-size:0.8rem;color:{muted};">{role_label}</div>
+            </div>
+            <div title="{role_label}" style="flex:0 0 46px;width:46px;height:46px;border-radius:50%;box-sizing:border-box;
+                 display:flex;align-items:center;justify-content:center;
+                 background:{bg};border:2px solid {ring};">
+                <img src="{icon_uri}" width="24" height="24" alt="{role_label}" style="display:block;">
+            </div>
+        </div>
+        """
+    )
+
+def render_login_transition(user):
+    is_dark = st.context.theme.type == "dark"
+    bg = "#0B120E" if is_dark else "#F4F8F4"
+    text = "#F4F7F4" if is_dark else "#14301F"
+    accent = "#8DE39E" if is_dark else "#166534"
+    muted = "#9DB0A2" if is_dark else "#5B6F61"
+    first_name = html.escape(user["name"].split()[0])
+    st.html(
+        f"""
+        <style>
+        @keyframes f09-overlay {{
+            0%   {{ opacity: 1; visibility: visible; }}
+            55%  {{ opacity: 1; visibility: visible; }}
+            100% {{ opacity: 0; visibility: hidden; }}
+        }}
+        @keyframes f09-welcome-text {{
+            0%   {{ opacity: 0; transform: translateY(10px); }}
+            30%  {{ opacity: 1; transform: translateY(0); }}
+            75%  {{ opacity: 1; transform: translateY(0); }}
+            100% {{ opacity: 0; transform: translateY(-6px); }}
+        }}
+        @keyframes f09-app-in {{
+            0%, 40% {{ opacity: 0; transform: translateY(14px) scale(0.995); }}
+            100%    {{ opacity: 1; transform: none; }}
+        }}
+        #f09-login-overlay {{
+            position: fixed; inset: 0; z-index: 999999; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 0.5rem; background: {bg};
+            animation: f09-overlay 3s ease-in-out forwards;
+        }}
+        #f09-login-overlay .hello {{
+            font-size: 1.8rem; font-weight: 650; color: {text};
+            animation: f09-welcome-text 3s ease-in-out forwards;
+        }}
+        #f09-login-overlay .sub {{
+            font-size: 0.85rem; letter-spacing: 0.22em; color: {muted};
+            animation: f09-welcome-text 3s ease-in-out forwards;
+        }}
+        #f09-login-overlay .bar {{
+            width: 90px; height: 2px; margin-top: 0.6rem; border-radius: 2px;
+            background: linear-gradient(90deg, transparent, {accent}, transparent);
+            animation: f09-welcome-text 3s ease-in-out forwards;
+        }}
+        [data-testid="stMain"] {{ animation: f09-app-in 3s cubic-bezier(.2,.7,.2,1) both; }}
+        [data-testid="stSidebar"] {{ animation: f09-app-in 3s cubic-bezier(.2,.7,.2,1) both; }}
+        </style>
+        <div id="f09-login-overlay" aria-hidden="true">
+            <div class="hello">Bienvenido, {first_name}</div>
+            <div class="sub">CARGANDO PANEL</div>
+            <div class="bar"></div>
+        </div>
+        """
+    )
+
+
+def render_user_admin():
+    st.subheader("Usuarios")
+    users = auth.load_users()
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {"Usuario": u, "Nombre": d["name"], "Rol": auth.ROLES[d["role"]]}
+                for u, d in users.items()
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+
+    with st.form("new_user_form", clear_on_submit=True):
+        st.markdown("**Agregar o actualizar usuario**")
+        c1, c2 = st.columns(2)
+        username = c1.text_input("Usuario")
+        name = c2.text_input("Nombre completo")
+        c3, c4 = st.columns(2)
+        password = c3.text_input("Contraseña (mín. 8 caracteres)", type="password")
+        role = c4.selectbox(
+            "Rol", list(auth.ROLES), format_func=lambda r: auth.ROLES[r]
+        )
+        if st.form_submit_button("Guardar usuario", type="primary"):
+            try:
+                auth.create_user(username, password, role, name)
+                st.success("Usuario guardado.")
+                st.rerun()
+            except ValueError as exc:
+                st.error(str(exc))
+
+    deletable = [u for u in users if u != st.session_state["auth_user"]["username"]]
+    if deletable:
+        c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
+        to_delete = c1.selectbox("Eliminar usuario", deletable)
+        if c2.button("Eliminar", width="stretch"):
+            auth.delete_user(to_delete)
+            st.rerun()
+
+
 def main():
     render_welcome_curtain()
 
+    if "auth_user" not in st.session_state:
+        render_login_screen()
+        st.stop()
+
+    current_user = st.session_state["auth_user"]
+    st.session_state.pop("auth_mode", None)
+    if st.session_state.pop("login_transition", False):
+        render_login_transition(current_user)
+
     with st.sidebar:
+        render_user_badge(current_user)
+        if st.button("Cerrar sesión", icon=":material/logout:", width="stretch"):
+            for key in ("auth_user", "dl_panel_open", "egg_open"):
+                st.session_state.pop(key, None)
+            st.rerun()
+
         st.header("Vista")
 
         selected_page = st.radio(
@@ -3974,6 +4596,29 @@ def main():
         auto_refresh = st.checkbox("Auto refresh", value=True)
         refresh_seconds = st.slider("Refresh segundos", 1, 30, 1)
 
+        st.markdown(
+            """
+            <style>
+            .st-key-easter_egg_box { margin-top: -0.5rem; }
+            .st-key-easter_egg_box button {
+                opacity: 0;
+                min-height: 0.9rem;
+                height: 0.9rem;
+                padding: 0;
+                border: 0;
+                cursor: default;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        with st.container(key="easter_egg_box"):
+            if st.button("\u200b", key="easter_egg_btn", width="stretch"):
+                st.session_state["egg_open"] = True
+
+    if st.session_state.get("egg_open", False):
+        show_easter_egg()
+
     render_dashboard_header(selected_model, selected_page)
 
     status_payload = load_status()
@@ -4029,6 +4674,8 @@ def main():
 
     if selected_page == "Vista general":
         notify_new_result(clean_df, selected_model)
+        if auth.can(current_user, "download"):
+            render_download_banner()
         render_summary_metrics(filtered_df)
         render_device_status(status_df_for_view)
         render_plc_ftp_status(plc_status_df_for_view)
@@ -4135,11 +4782,17 @@ def main():
 
     elif selected_page == "Configuración":
         render_config_tab()
-
+        if auth.can(current_user, "manage_users"):
+            render_user_admin()
     elif selected_page == "Acerca del sistema":
         render_about_tab()
 
-    if auto_refresh and selected_page in live_pages:
+    if (
+        auto_refresh
+        and selected_page in live_pages
+        and not st.session_state.get("dl_panel_open", False)
+        and not st.session_state.get("egg_open", False)
+    ):
         st_autorefresh(
             interval=refresh_seconds * 1000,
             key="asg_dashboard_autorefresh",
