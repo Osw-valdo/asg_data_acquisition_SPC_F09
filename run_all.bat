@@ -34,7 +34,7 @@ if defined MODEL (
     start "Colector %MODEL%" cmd /k ""%~dp0.venv\Scripts\python.exe" "%~dp0collector_multi_ip.py" --model %MODEL%"
 )
 
-timeout /t 6 >nul
+ping -n 7 127.0.0.1 >nul
 start "" http://localhost:8501
 exit /b 0
 
