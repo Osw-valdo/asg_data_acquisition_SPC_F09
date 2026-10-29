@@ -3,7 +3,10 @@ from datetime import datetime, timedelta
 import base64
 import html
 import json
+from types import SimpleNamespace
 import os
+import io
+import threading
 import time
 import math
 import urllib.error
@@ -28,7 +31,6 @@ import streamlit as st
 
 
 
-from streamlit_autorefresh import st_autorefresh
 
 from src.asg_config import get_enabled_devices, get_devices_by_model
 from src import auth
@@ -166,18 +168,19 @@ def load_plc_status():
         return {}
 
 
-@st.cache_data(ttl=2)
-def load_clean_data():
-    today_file = PROCESSED_DIR / f"asg_clean_master_{today_str()}.csv"
+@st.cache_resource
+def _clean_state():
+    return {
+        "path": None,
+        "offset": 0,
+        "columns": None,
+        "df": pd.DataFrame(),
+        "lock": threading.Lock(),
+    }
 
-    if not today_file.exists():
-        return pd.DataFrame()
 
-    try:
-        df = pd.read_csv(today_file)
-    except Exception:
-        return pd.DataFrame()
-
+def _process_clean_chunk(df):
+    """Convierte tipos y deriva columnas; trabaja solo sobre las filas nuevas."""
     if "timestamp_asg" in df.columns:
         df["timestamp_asg"] = pd.to_datetime(df["timestamp_asg"], errors="coerce")
 
@@ -243,9 +246,62 @@ def load_clean_data():
 
         return " | ".join(parts)
 
-    df["task_label"] = df.apply(build_task_label, axis=1)
+    df["task_label"] = df.apply(build_task_label, axis=1) if len(df) else ""
 
     return df
+
+
+def load_clean_data():
+    """Lee el CSV del día de forma incremental: solo procesa los bytes agregados desde la última lectura."""
+    today_file = PROCESSED_DIR / f"asg_clean_master_{today_str()}.csv"
+
+    state = _clean_state()
+
+    with state["lock"]:
+        try:
+            size = today_file.stat().st_size
+        except OSError:
+            state.update(path=None, offset=0, columns=None, df=pd.DataFrame())
+            return pd.DataFrame()
+
+        # Archivo nuevo, reescrito o truncado: se recarga completo.
+        if state["path"] != str(today_file) or size < state["offset"]:
+            state.update(path=str(today_file), offset=0, columns=None, df=pd.DataFrame())
+
+        if size == state["offset"]:
+            return state["df"].copy()
+
+        try:
+            with open(today_file, "rb") as handle:
+                handle.seek(state["offset"])
+                data = handle.read(size - state["offset"])
+        except OSError:
+            return state["df"].copy()
+
+        # Solo se consumen líneas completas; la última, si está a medias, se lee la próxima vez.
+        last_newline = data.rfind(b"\n")
+        if last_newline == -1:
+            return state["df"].copy()
+        data = data[: last_newline + 1]
+        consumed = len(data)
+
+        text = data.decode("utf-8-sig" if state["offset"] == 0 else "utf-8", errors="replace")
+        try:
+            if state["columns"] is None:
+                chunk = pd.read_csv(io.StringIO(text))
+                state["columns"] = list(chunk.columns)
+            else:
+                chunk = pd.read_csv(io.StringIO(text), header=None, names=state["columns"])
+        except Exception:
+            state.update(path=None, offset=0, columns=None, df=pd.DataFrame())
+            return pd.DataFrame()
+
+        chunk = _process_clean_chunk(chunk)
+        frames = [f for f in (state["df"], chunk) if not f.empty]
+        state["df"] = pd.concat(frames, ignore_index=True) if frames else chunk
+        state["offset"] += consumed
+        return state["df"].copy()
+
 
 
 @st.cache_data(ttl=2)
@@ -3675,7 +3731,9 @@ def api_request(path, params, timeout=60):
     """Llama a la API. Devuelve (bytes, content_type) o lanza RuntimeError con un mensaje legible."""
     clean = {k: v for k, v in params.items() if v not in (None, "", [])}
     url = f"{API_BASE_URL}{path}?{urllib.parse.urlencode(clean)}"
-    request = urllib.request.Request(url, headers={"X-User": st.session_state.get("auth_user", {}).get("username", "")})
+    user = st.session_state.get("auth_user")
+    headers = {"Authorization": f"Bearer {auth.create_api_token(user)}"} if user else {}
+    request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return response.read(), response.headers.get("Content-Type", "")
@@ -4485,7 +4543,6 @@ def main():
             "Selecciona vista",
             [
                 "Vista general",
-                "Dashboard por estación",
                 "Trazabilidad QR",
                 "Tiempos de ciclo",
                 "Capacidad",
@@ -4621,68 +4678,196 @@ def main():
 
     render_dashboard_header(selected_model, selected_page)
 
-    status_payload = load_status()
-    status_df = status_to_dataframe(status_payload)
-    status_df_for_view = filter_status_for_model(
-        status_df=status_df,
-        selected_model=selected_model,
-        devices_for_model=devices_for_model,
-    )
-    plc_status_payload = load_plc_status()
-    plc_status_df = status_to_dataframe(plc_status_payload)
-    plc_status_df_for_view = filter_plc_status_for_model(
-        status_df=plc_status_df,
-        devices_for_model=devices_for_model,
-    )
+    def load_view_data():
+        """Carga y filtra los datos; se llama dentro de cada fragmento para leer siempre lo más reciente."""
+        status_df = status_to_dataframe(load_status())
+        status_df_for_view = filter_status_for_model(
+            status_df=status_df,
+            selected_model=selected_model,
+            devices_for_model=devices_for_model,
+        )
+        plc_status_df = status_to_dataframe(load_plc_status())
+        plc_status_df_for_view = filter_plc_status_for_model(
+            status_df=plc_status_df,
+            devices_for_model=devices_for_model,
+        )
 
-    clean_df = load_clean_data()
+        clean_df = load_clean_data()
 
-    session_payload = load_session_state()
-    active_session_info = get_active_session_info(session_payload, selected_model)
+        session_payload = load_session_state()
+        active_session_info = get_active_session_info(session_payload, selected_model)
 
-    clean_df_for_view = apply_count_scope(
-        df=clean_df,
-        selected_model=selected_model,
-        count_scope=count_scope,
-        session_payload=session_payload,
-    )
+        clean_df_for_view = apply_count_scope(
+            df=clean_df,
+            selected_model=selected_model,
+            count_scope=count_scope,
+            session_payload=session_payload,
+        )
 
-    if count_scope == "Sesión actual":
-        session_id = active_session_info.get("production_session_id", "")
-        session_start = active_session_info.get("production_session_started_at", "")
+        if count_scope == "Sesión actual":
+            session_id = active_session_info.get("production_session_id", "")
+            session_start = active_session_info.get("production_session_started_at", "")
 
-        if session_id:
-            st.caption(f"Conteo activo: {session_id} | Inicio: {session_start}")
-        else:
-            st.caption("No hay sesión activa registrada. Inicia el colector para crear una sesión.")
+            if session_id:
+                st.caption(f"Conteo activo: {session_id} | Inicio: {session_start}")
+            else:
+                st.caption("No hay sesión activa registrada. Inicia el colector para crear una sesión.")
 
-    filtered_df = filter_data(
-        clean_df_for_view,
-        selected_model=selected_model,
-        selected_devices=selected_devices,
-        selected_result=selected_result,
-        last_n=last_n,
-        time_window_minutes=time_window_minutes,
-    )
+        filtered_df = filter_data(
+            clean_df_for_view,
+            selected_model=selected_model,
+            selected_devices=selected_devices,
+            selected_result=selected_result,
+            last_n=last_n,
+            time_window_minutes=time_window_minutes,
+        )
+
+        return SimpleNamespace(
+            status_df_for_view=status_df_for_view,
+            plc_status_df_for_view=plc_status_df_for_view,
+            clean_df=clean_df,
+            active_session_info=active_session_info,
+            clean_df_for_view=clean_df_for_view,
+            filtered_df=filtered_df,
+        )
 
     live_pages = [
         "Vista general",
-        "Dashboard por estación",
         "Trazabilidad QR",
         "Tabla de datos",
     ]
 
-    if selected_page == "Vista general":
-        notify_new_result(clean_df, selected_model)
-        if auth.can(current_user, "download"):
-            render_download_banner()
-        render_summary_metrics(filtered_df)
-        render_device_status(status_df_for_view)
-        render_plc_ftp_status(plc_status_df_for_view)
+    # Cada pestaña es un fragmento: solo se redibuja la que está abierta, sin reejecutar el script completo.
+    paused = st.session_state.get("dl_panel_open", False) or st.session_state.get("egg_open", False)
+    station_run_every = refresh_seconds if auto_refresh and not paused else None
+    main_run_every = station_run_every if selected_page in live_pages else None
 
-    elif selected_page == "Dashboard por estación":
+    tab_main, tab_station = st.tabs(
+        ["Vista", "Dashboard por estación"],
+        key="main_tabs",
+        on_change="rerun",
+    )
+
+    def render_main_view():
+        data = load_view_data()
+        clean_df = data.clean_df
+        clean_df_for_view = data.clean_df_for_view
+        filtered_df = data.filtered_df
+        active_session_info = data.active_session_info
+
+        if selected_page == "Vista general":
+            notify_new_result(clean_df, selected_model)
+            if auth.can(current_user, "download"):
+                render_download_banner()
+            render_summary_metrics(filtered_df)
+            render_device_status(data.status_df_for_view)
+            render_plc_ftp_status(data.plc_status_df_for_view)
+
+        elif selected_page == "Trazabilidad QR":
+            plc_pieces_df, plc_attempts_df, plc_tightenings_df = (
+                load_plc_traceability_data()
+            )
+
+            render_qr_traceability_tab(
+                pieces_df=plc_pieces_df,
+                attempts_df=plc_attempts_df,
+                tightenings_df=plc_tightenings_df,
+                asg_df=clean_df_for_view,
+                selected_model=selected_model,
+                selected_devices=selected_devices,
+                selected_result=selected_result,
+                count_scope=count_scope,
+                active_session_info=active_session_info,
+                time_window_minutes=time_window_minutes,
+                last_n=last_n,
+            )
+
+        elif selected_page == "Tiempos de ciclo":
+            cycle_base_df = filter_cycle_base_data(
+                clean_df_for_view,
+                selected_model=selected_model,
+                selected_devices=selected_devices,
+                last_n=last_n,
+                time_window_minutes=time_window_minutes,
+            )
+
+            plc_pieces_df, _, _ = load_plc_traceability_data()
+            plc_pieces_for_count = filter_plc_traceability_data(
+                plc_pieces_df,
+                selected_model=selected_model,
+                selected_devices=selected_devices,
+                count_scope=count_scope,
+                active_session_info=active_session_info,
+                time_window_minutes=None,
+                last_n=None,
+            )
+
+            render_cycle_time_tab(
+                cycle_base_df=cycle_base_df,
+                plc_pieces_df=plc_pieces_for_count,
+                devices_for_model=devices_for_model,
+                selected_model=selected_model,
+            )
+
+        elif selected_page == "Capacidad":
+            asg_capability_df = filter_data(
+                clean_df_for_view,
+                selected_model=selected_model,
+                selected_devices=selected_devices,
+                selected_result="Todos",
+                last_n=last_n,
+                time_window_minutes=time_window_minutes,
+            )
+            _, _, plc_tightenings_df = load_plc_traceability_data()
+            plc_capability_df = filter_plc_traceability_data(
+                plc_tightenings_df,
+                selected_model=selected_model,
+                selected_devices=selected_devices,
+                count_scope=count_scope,
+                active_session_info=active_session_info,
+                time_window_minutes=time_window_minutes,
+                last_n=last_n,
+            )
+            capability_base_df = prepare_hybrid_capability_data(
+                asg_df=asg_capability_df,
+                plc_tightenings_df=plc_capability_df,
+            )
+
+            render_capability_tab(
+                capability_df=capability_base_df,
+                devices_for_model=devices_for_model,
+                selected_model=selected_model,
+                minimum_samples=30,
+            )
+
+        elif selected_page == "MSA":
+            render_msa_tab(
+                clean_df=clean_df_for_view,
+                devices_for_model=devices_for_model,
+                selected_model=selected_model,
+            )
+
+        elif selected_page == "Tabla de datos":
+            render_results_table(filtered_df)
+
+        elif selected_page == "Configuración":
+            render_config_tab()
+            if auth.can(current_user, "manage_users"):
+                render_user_admin()
+        elif selected_page == "Acerca del sistema":
+            render_about_tab()
+
+        if auto_refresh and selected_page not in live_pages:
+            st.caption(
+                "Auto-refresh pausado en esta vista para evitar el efecto nublado. "
+                "Solo se actualiza en Vista general, Trazabilidad QR, Tabla de datos "
+                "y Dashboard por estación."
+            )
+
+    def render_station_view():
+        data = load_view_data()
         render_station_dashboard_grid(
-            filtered_df,
+            data.filtered_df,
             selected_devices=selected_devices,
             devices_for_model=devices_for_model,
             show_markers=show_markers,
@@ -4693,117 +4878,13 @@ def main():
             chart_height=station_chart_height,
         )
 
-    elif selected_page == "Trazabilidad QR":
-        plc_pieces_df, plc_attempts_df, plc_tightenings_df = (
-            load_plc_traceability_data()
-        )
+    if tab_main.open:
+        with tab_main:
+            st.fragment(run_every=main_run_every)(render_main_view)()
 
-        render_qr_traceability_tab(
-            pieces_df=plc_pieces_df,
-            attempts_df=plc_attempts_df,
-            tightenings_df=plc_tightenings_df,
-            asg_df=clean_df_for_view,
-            selected_model=selected_model,
-            selected_devices=selected_devices,
-            selected_result=selected_result,
-            count_scope=count_scope,
-            active_session_info=active_session_info,
-            time_window_minutes=time_window_minutes,
-            last_n=last_n,
-        )
-
-    elif selected_page == "Tiempos de ciclo":
-        cycle_base_df = filter_cycle_base_data(
-            clean_df_for_view,
-            selected_model=selected_model,
-            selected_devices=selected_devices,
-            last_n=last_n,
-            time_window_minutes=time_window_minutes,
-        )
-
-        plc_pieces_df, _, _ = load_plc_traceability_data()
-        plc_pieces_for_count = filter_plc_traceability_data(
-            plc_pieces_df,
-            selected_model=selected_model,
-            selected_devices=selected_devices,
-            count_scope=count_scope,
-            active_session_info=active_session_info,
-            time_window_minutes=None,
-            last_n=None,
-        )
-
-        render_cycle_time_tab(
-            cycle_base_df=cycle_base_df,
-            plc_pieces_df=plc_pieces_for_count,
-            devices_for_model=devices_for_model,
-            selected_model=selected_model,
-        )
-
-    elif selected_page == "Capacidad":
-        asg_capability_df = filter_data(
-            clean_df_for_view,
-            selected_model=selected_model,
-            selected_devices=selected_devices,
-            selected_result="Todos",
-            last_n=last_n,
-            time_window_minutes=time_window_minutes,
-        )
-        _, _, plc_tightenings_df = load_plc_traceability_data()
-        plc_capability_df = filter_plc_traceability_data(
-            plc_tightenings_df,
-            selected_model=selected_model,
-            selected_devices=selected_devices,
-            count_scope=count_scope,
-            active_session_info=active_session_info,
-            time_window_minutes=time_window_minutes,
-            last_n=last_n,
-        )
-        capability_base_df = prepare_hybrid_capability_data(
-            asg_df=asg_capability_df,
-            plc_tightenings_df=plc_capability_df,
-        )
-
-        render_capability_tab(
-            capability_df=capability_base_df,
-            devices_for_model=devices_for_model,
-            selected_model=selected_model,
-            minimum_samples=30,
-        )
-
-    elif selected_page == "MSA":
-        render_msa_tab(
-            clean_df=clean_df_for_view,
-            devices_for_model=devices_for_model,
-            selected_model=selected_model,
-        )
-
-    elif selected_page == "Tabla de datos":
-        render_results_table(filtered_df)
-
-    elif selected_page == "Configuración":
-        render_config_tab()
-        if auth.can(current_user, "manage_users"):
-            render_user_admin()
-    elif selected_page == "Acerca del sistema":
-        render_about_tab()
-
-    if (
-        auto_refresh
-        and selected_page in live_pages
-        and not st.session_state.get("dl_panel_open", False)
-        and not st.session_state.get("egg_open", False)
-    ):
-        st_autorefresh(
-            interval=refresh_seconds * 1000,
-            key="asg_dashboard_autorefresh",
-        )
-
-    elif auto_refresh and selected_page not in live_pages:
-        st.caption(
-            "Auto-refresh pausado en esta vista para evitar el efecto nublado. "
-            "El auto-refresh solo queda activo en Vista general, Dashboard por estación, "
-            "Trazabilidad QR y Tabla de datos."
-        )
+    if tab_station.open:
+        with tab_station:
+            st.fragment(run_every=station_run_every)(render_station_view)()
 
 
 if __name__ == "__main__":

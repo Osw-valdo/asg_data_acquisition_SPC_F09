@@ -14,8 +14,11 @@ from pathlib import Path
 from threading import Lock
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import Response, StreamingResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from src import auth
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
@@ -31,9 +34,27 @@ PLC_ID_PATTERN = re.compile(r"^[A-Za-z0-9_\-]+$")
 LOG_COLUMNS = ["timestamp", "client_ip", "user", "endpoint", "params", "rows_or_files", "bytes"]
 _log_lock = Lock()
 
+bearer_scheme = HTTPBearer(auto_error=False, description="Token emitido por el dashboard al iniciar sesión.")
+
+
+def require_download(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+):
+    if credentials is None:
+        raise HTTPException(401, "Falta el token de autenticación.", headers={"WWW-Authenticate": "Bearer"})
+    user = auth.verify_api_token(credentials.credentials)
+    if user is None:
+        raise HTTPException(401, "Token inválido o vencido.", headers={"WWW-Authenticate": "Bearer"})
+    if not auth.can(user, "download"):
+        raise HTTPException(403, "Tu rol no tiene permiso para descargar datos.")
+    request.state.user = user["username"]
+    return user
+
+
 app = FastAPI(
     title="API de datos F09",
-    version="0.1.0",
+    version="0.2.0",
     description="Descarga de datos procesados de atornillado (ASG) y logfiles de PLC por FTP.",
 )
 
@@ -56,7 +77,7 @@ def _log_download(request: Request, endpoint: str, params: dict, count: int, siz
     row = [
         datetime.now().isoformat(timespec="seconds"),
         request.client.host if request.client else "",
-        request.headers.get("x-user", ""),
+        getattr(request.state, "user", ""),
         endpoint,
         "&".join(f"{k}={v}" for k, v in params.items() if v not in (None, "")),
         count,
@@ -133,7 +154,7 @@ def health():
     }
 
 
-@app.get("/torque/summary", summary="Resumen previo a la descarga de torque")
+@app.get("/torque/summary", dependencies=[Depends(require_download)], summary="Resumen previo a la descarga de torque")
 def torque_summary(
     start: date,
     end: date,
@@ -150,7 +171,7 @@ def torque_summary(
     }
 
 
-@app.get("/torque", summary="Descargar torque de atornillado (CSV o Excel)")
+@app.get("/torque", dependencies=[Depends(require_download)], summary="Descargar torque de atornillado (CSV o Excel)")
 def torque_download(
     request: Request,
     start: date,
@@ -192,7 +213,7 @@ def torque_download(
     )
 
 
-@app.get("/ftp/files", summary="Listar logfiles de PLC disponibles en el rango")
+@app.get("/ftp/files", dependencies=[Depends(require_download)], summary="Listar logfiles de PLC disponibles en el rango")
 def ftp_files(start: date, end: date, plc_id: str | None = None):
     _validate_range(start, end)
     files = _plc_files(start, end, plc_id)
@@ -203,7 +224,7 @@ def ftp_files(start: date, end: date, plc_id: str | None = None):
     }
 
 
-@app.get("/ftp", summary="Descargar logfiles de PLC en un ZIP")
+@app.get("/ftp", dependencies=[Depends(require_download)], summary="Descargar logfiles de PLC en un ZIP")
 def ftp_download(request: Request, start: date, end: date, plc_id: str | None = None):
     _validate_range(start, end)
     files = _plc_files(start, end, plc_id)

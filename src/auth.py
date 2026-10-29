@@ -1,10 +1,14 @@
+import base64
 import hashlib
 import hmac
 import json
 import secrets
+import time
 from pathlib import Path
 
 USERS_FILE = Path(__file__).resolve().parent.parent / "data" / "auth" / "users.json"
+API_SECRET_FILE = USERS_FILE.parent / "api_secret.key"
+API_TOKEN_TTL_SECONDS = 8 * 3600
 
 ROLES = {
     "admin": "Administrador",
@@ -95,3 +99,44 @@ def authenticate(username, password):
 
 def can(user, permission):
     return bool(user) and permission in PERMISSIONS.get(user["role"], set())
+
+
+def _api_secret():
+    """Clave compartida por dashboard y API (misma máquina); se crea al primer uso."""
+    if API_SECRET_FILE.exists():
+        return API_SECRET_FILE.read_bytes()
+    API_SECRET_FILE.parent.mkdir(parents=True, exist_ok=True)
+    secret = secrets.token_bytes(32)
+    API_SECRET_FILE.write_bytes(secret)
+    return secret
+
+
+def _sign(payload_b64):
+    return hmac.new(_api_secret(), payload_b64.encode("ascii"), hashlib.sha256).hexdigest()
+
+
+def create_api_token(user, ttl_seconds=API_TOKEN_TTL_SECONDS):
+    payload = json.dumps(
+        {"u": user["username"], "r": user["role"], "exp": int(time.time()) + ttl_seconds},
+        separators=(",", ":"),
+    )
+    payload_b64 = base64.urlsafe_b64encode(payload.encode("utf-8")).decode("ascii")
+    return f"{payload_b64}.{_sign(payload_b64)}"
+
+
+def verify_api_token(token):
+    """Devuelve {'username','role'} si el token es válido y vigente; si no, None."""
+    try:
+        payload_b64, signature = token.split(".", 1)
+        if not hmac.compare_digest(signature, _sign(payload_b64)):
+            return None
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64.encode("ascii")))
+        if payload["exp"] < time.time():
+            return None
+        # El rol se toma del registro actual para que un cambio o baja surta efecto de inmediato.
+        user = load_users().get(payload["u"])
+        if not user:
+            return None
+        return {"username": payload["u"], "role": user["role"]}
+    except (ValueError, KeyError, TypeError, AttributeError):
+        return None
