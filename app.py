@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 from datetime import datetime, timedelta
 import base64
 import html
@@ -34,6 +34,7 @@ import streamlit as st
 
 from src.asg_config import get_enabled_devices, get_devices_by_model
 from src import auth
+from src.live_chart import live_torque_chart
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -380,7 +381,7 @@ def load_session_state():
 
 def load_launcher_selection():
     """
-    Lee la selección realizada desde asg_launcher.py.
+    Lee la selección realizada desde asg_control.py.
 
     Archivo esperado:
     logs/launcher_selection.json
@@ -1397,6 +1398,43 @@ def render_station_dashboard_grid(
     if devices_for_model is not None and not devices_for_model.empty:
         for _, row in devices_for_model.iterrows():
             config_lookup[row["device_id"]] = row.to_dict()
+
+    zoom_options = ["Ninguna"] + list(selected_devices)
+    if st.session_state.get("zoom_station") not in zoom_options:
+        st.session_state["zoom_station"] = "Ninguna"
+
+    zoom_device = st.selectbox(
+        "🔍 Ampliar estación (se mantiene abierta mientras se actualiza)",
+        zoom_options,
+        key="zoom_station",
+    )
+
+    if zoom_device != "Ninguna" and not df.empty and "device_id" in df.columns:
+        if not df[df["device_id"] == zoom_device].empty:
+            with st.container(border=True):
+                st.markdown(f"### {zoom_device} (ampliada)")
+                live_engine = st.toggle(
+                    "⚡ Motor en vivo (experimental, animado)",
+                    value=True,
+                    key="zoom_live_engine",
+                )
+                if live_engine:
+                    live_torque_chart(df, zoom_device, key="torque_zoom_live")
+                else:
+                    st.plotly_chart(
+                        make_station_torque_chart(
+                            df,
+                            device_id=zoom_device,
+                            show_markers=show_markers,
+                            show_limits=show_limits,
+                            auto_scale=auto_scale,
+                            chart_height=650,
+                        ),
+                        width="stretch",
+                        key="torque_zoom",
+                    )
+        else:
+            st.info("Sin resultados para esta estación en la selección actual.")
 
     for i in range(0, len(selected_devices), columns_per_row):
         row_devices = selected_devices[i:i + columns_per_row]
@@ -3744,7 +3782,7 @@ def api_request(path, params, timeout=60):
             detail = ""
         raise RuntimeError(detail or f"La API respondió con error {exc.code}.")
     except (urllib.error.URLError, TimeoutError, OSError):
-        raise RuntimeError(f"No se pudo conectar con la API en {API_BASE_URL}. ¿Está corriendo run_api.bat?")
+        raise RuntimeError(f"No se pudo conectar con la API en {API_BASE_URL}. ¿Está corriendo la API (panel de control)?")
 
 
 def render_downloads_panel():

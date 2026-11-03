@@ -100,7 +100,7 @@ No guardes contraseñas en el repositorio ni en los CSV de configuración.
 | Archivo o carpeta | Responsabilidad |
 |---|---|
 | `app.py` | Dashboard Streamlit, filtros, vistas, trazabilidad y cálculos de ciclo/capacidad/MSA. |
-| `asg_launcher.py` | Interfaz Tkinter para iniciar dashboard, colectores y abrir el navegador. |
+| `asg_control.py` | Panel de control Tkinter: inicia/detiene API, dashboard y colectores, con estado y logs. Se abre con `run_control.bat`. |
 | `collector_multi_ip.py` | Workers TCP para adquirir datos en vivo de ASG. |
 | `collector_ftp_plc.py` | Descarga continua de logfiles PLC de atornillado y actualización de estado FTP. |
 | `check_ftp_stations.py` | Prueba de conexión, login, acceso/listado de carpeta y presencia del log diario; no descarga. |
@@ -155,30 +155,25 @@ de `.venv`.
 
 ### Sistema completo
 
-Ejecuta `run_launcher.bat`. En el launcher:
+Ejecuta `run_control.bat` (doble clic). En el panel:
 
-1. Selecciona T1XX-1 o T1XX-2.
-2. Selecciona el modo de conteo: preguntar, conteo nuevo o continuar el actual.
-3. Pulsa **Iniciar sistema completo**.
+1. Selecciona T1XX-1 o T1XX-2 y el modo de conteo (`continue` o `new`).
+2. Pulsa **Iniciar todo**, o inicia/detiene cada servicio por separado.
+3. Pulsa **Abrir dashboard** (`http://localhost:8501`).
 
-El launcher abre ventanas separadas para el dashboard, el colector ASG y el
-colector FTP de PLC. Cada proceso se puede iniciar también de forma
-independiente. El launcher solicita credenciales al iniciar el proceso FTP si
-no están configuradas en el entorno.
+El panel corre API (8600), dashboard (8501), colector ASG y colector FTP de
+PLC sin ventanas de consola; cada servicio tiene estado y log en vivo (los logs
+quedan en `logs\launcher\`). Al iniciar el colector FTP pide usuario y
+contraseña, que solo se guardan en memoria, salvo que estén definidas en el
+entorno (`SPC_PLC_FTP_USER` y `SPC_PLC_FTP_PASSWORD`).
 
 ### Dashboard solamente
 
 ```bat
-run_dashboard.bat
+.venv\Scripts\python.exe -m streamlit run app.py --server.port 8501
 ```
 
-O directamente:
-
-```bat
-.venv\Scripts\python.exe -m streamlit run app.py --server.port 8502
-```
-
-Abre `http://localhost:8502`. La aplicación lee archivos locales; el dashboard
+Abre `http://localhost:8501`. La aplicación lee archivos locales; el dashboard
 no inicia por sí mismo los colectores. Para tener datos recientes, los
 colectores correspondientes deben estar corriendo.
 
@@ -190,14 +185,7 @@ muestra además el estado FTP guardado por el colector.
 
 ### Colector ASG
 
-Scripts rápidos:
-
-```bat
-run_collector_T1XX1.bat
-run_collector_T1XX2.bat
-```
-
-O por línea de comandos:
+Por línea de comandos:
 
 ```bat
 .venv\Scripts\python.exe collector_multi_ip.py --model T1XX-1

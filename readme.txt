@@ -1,4 +1,4 @@
-BITACORA DEL PROYECTO
+﻿BITACORA DEL PROYECTO
 Actualizada: 2026-10-21
 
 CAMBIOS RECIENTES
@@ -33,12 +33,12 @@ CAMBIOS RECIENTES
 - README.md documenta la prueba FTP de ensamble y la ruta local de la copia RAW.
 - Se incorporaron src/plc_config.py y src/plc_log_parser.py desde los archivos
   compartidos, para que collector_ftp_plc.py pueda arrancar con config/plc_devices.csv.
-- README.md explica como iniciar el colector FTP desde el launcher; los logs RAW
+- README.md explica como iniciar el colector FTP desde el panel de control; los logs RAW
   se guardan en data\plc_raw\<PLC>\ y los procesados en data\plc_processed\.
 
 PARA CONTINUAR
 - Abrir el repositorio en la rama osw-valdo-analisis-repositorio para ver estos cambios.
-- Ejecutar run_launcher.bat; el primer inicio requiere Python 3.12+ y puede tardar
+- Ejecutar run_control.bat; el primer inicio requiere Python 3.12+ y puede tardar
   mientras se instala requirements.txt.
 - Para probar FTP, ejecutar:
   .venv\Scripts\python.exe check_ftp_stations.py
@@ -48,7 +48,7 @@ PARA CONTINUAR
   .venv\Scripts\python.exe read_assembly_log_ftp.py
 - Para un PLC no registrado, usar --ip, --port y --device-id; si la ruta o nombre
   remoto difiere, indicar --remote-dir y --remote-name.
-- Para recolectar, abrir asg_launcher.py y seleccionar "Iniciar sistema completo"
+- Para recolectar, abrir run_control.bat y pulsar "Iniciar todo"
   o "Solo iniciar Colector PLC / FTP". Se requieren credenciales FTP locales.
 - Los archivos de data/ que aparecen modificados localmente son datos de prueba y no se
   incluyeron en el commit de configuracion.

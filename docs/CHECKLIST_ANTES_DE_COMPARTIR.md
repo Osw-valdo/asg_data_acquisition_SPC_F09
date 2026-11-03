@@ -24,13 +24,12 @@ Antes de enviar o subir el proyecto, verificar lo siguiente:
 - `src/`
 - `docs/`
 - `demo_data/`
-- `run_dashboard.bat`
-- `run_collector_T1XX1.bat`
-- `run_collector_T1XX2.bat`
+- `run_control.bat`
+- `asg_control.py`
 
 ## Revisión rápida
 
 - Ejecutar `python -m py_compile app.py`.
 - Ejecutar `python -m py_compile collector_multi_ip.py`.
-- Confirmar que el dashboard abre en `localhost:8502`.
+- Confirmar que el dashboard abre en `localhost:8501`.
 - Confirmar que el README explica cómo operar el sistema.
