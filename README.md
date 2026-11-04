@@ -19,7 +19,9 @@ implementada: las limitaciones conocidas se anotan al final.
   parser de ensamble ni una vista de piezas OK/NG para esas estaciones.
 - **Modelos de producto:** T1XX-1 y T1XX-2.
 - **Ejecución:** aplicación local para Windows. El dashboard Streamlit se sirve
-  en `http://localhost:8502`.
+  en `http://localhost:8501` y la API de solo lectura en `http://localhost:8600`.
+- **Acceso:** el dashboard requiere inicio de sesión con roles (ver
+  [Usuarios, roles y API](#usuarios-roles-y-api)).
 
 ## Arquitectura y flujo de datos
 
@@ -99,8 +101,12 @@ No guardes contraseñas en el repositorio ni en los CSV de configuración.
 
 | Archivo o carpeta | Responsabilidad |
 |---|---|
-| `app.py` | Dashboard Streamlit, filtros, vistas, trazabilidad y cálculos de ciclo/capacidad/MSA. |
+| `app.py` | Dashboard Streamlit, login, filtros, vistas, trazabilidad y cálculos de ciclo/capacidad/MSA. |
+| `api/main.py` | API FastAPI de solo lectura (descarga de torque y logfiles FTP) con token Bearer. |
+| `src/auth.py` | Usuarios, roles, hash de contraseñas (PBKDF2), permisos y tokens de API. |
+| `src/live_chart.py` | Gráfica de torque en vivo (componente Streamlit v2, canvas JS animado). |
 | `asg_control.py` | Panel de control Tkinter: inicia/detiene API, dashboard y colectores, con estado y logs. Se abre con `run_control.bat`. |
+| `run_control.bat` | Prepara el entorno (`setup_environment.bat`) y abre el panel de control. |
 | `collector_multi_ip.py` | Workers TCP para adquirir datos en vivo de ASG. |
 | `collector_ftp_plc.py` | Descarga continua de logfiles PLC de atornillado y actualización de estado FTP. |
 | `check_ftp_stations.py` | Prueba de conexión, login, acceso/listado de carpeta y presencia del log diario; no descarga. |
@@ -115,7 +121,8 @@ No guardes contraseñas en el repositorio ni en los CSV de configuración.
 | `src/plc_config.py` | Lectura y validación del inventario de PLC. |
 | `src/plc_log_parser.py` | Parser fijo de los logfiles PLC de atornillado y generación de CSV procesados. |
 | `data/` | Archivos RAW y procesados locales; las carpetas de producción se ignoran en Git. |
-| `logs/` | Logs, estado de conexión, selección del launcher y sesión de conteo; ignorados en Git. |
+| `logs/` | Logs, estado de conexión, selección del panel de control, logs de servicios y sesión de conteo; ignorados en Git. |
+| `data/auth/` | Usuarios (`users.json`) y clave de tokens (`api_secret.key`); ignorados en Git. |
 | `docs/` | Resumen ejecutivo, material de presentación y checklist del proyecto. |
 | `readme.txt` | Bitácora corta de cambios y notas para retomar el trabajo. |
 | `VERSION.md` | Notas de versión existentes; revisar fecha y vigencia al publicar cambios. |
@@ -136,7 +143,7 @@ Requisitos:
 - Para el dashboard: dependencias de `requirements.txt` (incluye Streamlit,
   pandas y Plotly).
 
-Los archivos `.bat` llaman a `setup_environment.bat`. En el primer inicio, este
+`run_control.bat` llama a `setup_environment.bat`. En el primer inicio, este
 script crea `.venv` con `py -3` e instala `requirements.txt`; los siguientes
 inicios reutilizan ese entorno. La carpeta `.venv` está excluida de Git. Si se
 modifica `requirements.txt`, actualiza el entorno manualmente:
@@ -177,11 +184,49 @@ Abre `http://localhost:8501`. La aplicación lee archivos locales; el dashboard
 no inicia por sí mismo los colectores. Para tener datos recientes, los
 colectores correspondientes deben estar corriendo.
 
-Las vistas de la barra lateral son **Vista general**, **Dashboard por estación**,
-**Trazabilidad QR**, **Tiempos de ciclo**, **Capacidad**, **MSA**, **Tabla de
-datos**, **Configuración** y **Acerca del sistema**. Los controles permiten
-filtrar modelo, estación, resultado y ventana de tiempo. La vista general
-muestra además el estado FTP guardado por el colector.
+Las vistas de la barra lateral son **Vista general**, **Trazabilidad QR**,
+**Tiempos de ciclo**, **Capacidad**, **MSA**, **Tabla de datos**,
+**Configuración** y **Acerca del sistema**. **Dashboard por estación** es una
+segunda pestaña principal junto a **Vista**. Los controles permiten filtrar
+modelo, estación, resultado y ventana de tiempo. La vista general muestra además
+el estado FTP guardado por el colector.
+
+**Fluidez:** el CSV del día se lee de forma incremental (solo las filas nuevas)
+y cada pestaña se refresca como fragmento, sin reejecutar toda la página.
+
+**Ampliar una estación:** en "Dashboard por estación", el selector "Ampliar
+estación" muestra una gráfica grande que no se cierra al llegar datos nuevos. El
+interruptor "Motor en vivo (experimental)" usa `src/live_chart.py` (animación
+sin parpadeo, banda de tolerancia, puntos OK/NOK); apagado usa Plotly.
+
+## Usuarios, roles y API
+
+El dashboard pide inicio de sesión. El primer registro crea el administrador; los
+siguientes registros públicos crean siempre **operador**. Los usuarios se guardan
+en `data/auth/users.json` (hash PBKDF2; las contraseñas no son recuperables, solo
+restablecibles).
+
+| Rol | Permisos |
+|---|---|
+| admin | ver, descargar, administrar usuarios |
+| engineer | ver, descargar |
+| operator | ver |
+
+**API (`api/main.py`, puerto 8600, documentación en `/docs`):**
+
+| Ruta | Descripción |
+|---|---|
+| `GET /health` | Estado (público). |
+| `GET /torque/summary`, `GET /torque` | Resumen y descarga de torque (filtros de fecha, estación, resultado). |
+| `GET /ftp/files`, `GET /ftp` | Lista y descarga de logfiles FTP. |
+
+Las rutas, salvo `/health`, exigen `Authorization: Bearer <token>` de un usuario
+con permiso `download`. El token es HMAC firmado y dura 8 horas; el dashboard lo
+genera automáticamente para el usuario con sesión al descargar, con la clave
+`data/auth/api_secret.key`.
+Un token falso, manipulado o vencido da 401; un usuario sin permiso, 403. Cada
+descarga se registra con el usuario en `logs/api_downloads.csv`. El dashboard
+consume esta API (`ASG_API_URL`, por defecto `http://127.0.0.1:8600`).
 
 ### Colector ASG
 
@@ -203,7 +248,7 @@ conexiones y sesiones de producción independientes.
 
 ### Colector PLC/FTP continuo
 
-Desde el launcher, pulsa **Solo iniciar Colector PLC / FTP**, o ejecuta:
+Desde el panel de control, inicia **Colector PLC FTP**, o ejecuta:
 
 ```bat
 .venv\Scripts\python.exe collector_ftp_plc.py --model T1XX-1
@@ -220,7 +265,7 @@ Opciones del colector:
 - `--date AAAA-MM-DD`: consulta esa fecha en vez de la fecha actual.
 - `--once`: hace un ciclo y termina.
 
-El launcher pasa el modelo seleccionado y un intervalo de 10 segundos. El
+El panel pasa el modelo seleccionado y un intervalo de 10 segundos. El
 colector procesa los logs de atornillado después de cada ciclo cuando hay
 cambios, y al menos una vez si todavía no existen todos los CSV de salida.
 Detén un colector con `Ctrl+C`.
@@ -359,7 +404,9 @@ separados o una extensión deliberada de este contrato.
 | `logs/plc_ftp_status.json` | Último estado FTP por PLC, tamaños, errores y ruta local/remota. |
 | `logs/collector.log`, `logs/collector_ftp_plc.log` | Registro operativo de los colectores. |
 | `logs/production_session.json` | Sesiones activas/anteriores de conteo por modelo. |
-| `logs/launcher_selection.json` | Modelo y modo elegidos en el launcher. |
+| `logs/launcher_selection.json` | Modelo y modo elegidos en el panel de control. |
+| `logs/launcher/<servicio>.log` | Salida de API, dashboard y colectores iniciados desde el panel. |
+| `logs/api_downloads.csv` | Registro de descargas por la API (usuario, ruta, filtros). |
 
 `AAAA-MM-DD` representa la fecha ISO, por ejemplo `2026-10-21`. Los logfiles RAW
 FTP conservan el nombre remoto `AAMMDD_Log.csv`.
@@ -382,10 +429,10 @@ evita subir datos operativos. Configuración y código sí se versionan.
 
 Confirma que `py -3 --version` funciona. No uses el alias `python.exe` de
 WindowsApps. Ejecuta `setup_environment.bat` desde la carpeta del repositorio
-para crear/instalar `.venv`; después los launchers usan explícitamente
+para crear/instalar `.venv`; después `run_control.bat` usa explícitamente
 `.venv\Scripts\python.exe`.
 
-### El launcher dice que faltan archivos
+### El panel dice que faltan archivos
 
 Debe existir `app.py`, ambos colectores, `config/asg_devices.csv` y
 `config/plc_devices.csv`. El colector FTP también importa
