@@ -5,8 +5,10 @@ cd /d "%~dp0"
 set "VENV_PYTHON=%~dp0.venv\Scripts\python.exe"
 set "DEPENDENCY_MARKER=%~dp0.venv\requirements-installed"
 if not exist "%VENV_PYTHON%" goto :create_venv
-if exist "%DEPENDENCY_MARKER%" exit /b 0
-goto :install_dependencies
+if not exist "%DEPENDENCY_MARKER%" goto :install_dependencies
+fc /b "%~dp0requirements.txt" "%DEPENDENCY_MARKER%" >nul
+if errorlevel 1 goto :install_dependencies
+exit /b 0
 
 :create_venv
 where py >nul 2>nul
@@ -25,7 +27,8 @@ echo Instalando dependencias desde requirements.txt...
 "%VENV_PYTHON%" -m pip install -r "%~dp0requirements.txt"
 if errorlevel 1 goto :setup_failed
 
-> "%DEPENDENCY_MARKER%" echo Instaladas desde requirements.txt
+copy /y "%~dp0requirements.txt" "%DEPENDENCY_MARKER%" >nul
+if errorlevel 1 goto :setup_failed
 exit /b 0
 
 :python_missing

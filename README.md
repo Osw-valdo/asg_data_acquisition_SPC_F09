@@ -146,7 +146,8 @@ Requisitos:
 `run_control.bat` llama a `setup_environment.bat`. En el primer inicio, este
 script crea `.venv` con `py -3` e instala `requirements.txt`; los siguientes
 inicios reutilizan ese entorno. La carpeta `.venv` está excluida de Git. Si se
-modifica `requirements.txt`, actualiza el entorno manualmente:
+modifica `requirements.txt`, `setup_environment.bat` detecta el cambio e instala
+las dependencias actualizadas automáticamente. También puedes hacerlo a mano:
 
 ```bat
 cd C:\ruta\al\repositorio
@@ -227,6 +228,16 @@ genera automáticamente para el usuario con sesión al descargar, con la clave
 Un token falso, manipulado o vencido da 401; un usuario sin permiso, 403. Cada
 descarga se registra con el usuario en `logs/api_downloads.csv`. El dashboard
 consume esta API (`ASG_API_URL`, por defecto `http://127.0.0.1:8600`).
+
+**Exportación de torque:** el panel de descargas ofrece CSV, Excel (`.xlsx`) y
+Microsoft Access (`.accdb`). El archivo Access es una copia puntual de los datos
+que coinciden con el rango y filtros elegidos; contiene la tabla
+`TorqueResults`, con torque y ángulo como campos numéricos y marcas de tiempo
+como fecha/hora. No es una conexión viva ni reemplaza el almacenamiento del
+colector. Para crear `.accdb` se requiere Windows, `pyodbc`, `pywin32` y
+Microsoft Access Database Engine (ACE) de la misma arquitectura (32 o 64 bits)
+que Python. La aplicación muestra un error claro si el controlador no está
+instalado.
 
 ### Colector ASG
 

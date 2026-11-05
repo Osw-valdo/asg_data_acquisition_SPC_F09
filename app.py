@@ -3824,7 +3824,17 @@ def render_downloads_panel():
 
         st.markdown("**4. Formato**")
         if is_torque:
-            fmt = st.radio("Formato", ["CSV", "Excel (.xlsx)"], horizontal=True, key="dl_fmt")
+            fmt = st.radio(
+                "Formato",
+                ["CSV", "Excel (.xlsx)", "Access (.accdb)"],
+                horizontal=True,
+                key="dl_fmt",
+            )
+            if fmt.startswith("Access"):
+                st.caption(
+                    "Genera una base Access con la tabla TorqueResults. Requiere "
+                    "Microsoft Access Database Engine (ACE) instalado."
+                )
         else:
             st.radio("Formato", ["ZIP con logfiles originales"], key="dl_fmt_ftp")
 
@@ -3875,7 +3885,15 @@ def render_downloads_panel():
             with st.spinner("Generando archivo..."):
                 body, content_type = api_request("/torque" if is_torque else "/ftp", download_params, timeout=300)
             if is_torque:
-                ext = "xlsx" if fmt.startswith("Excel") else "csv"
+                if fmt.startswith("Access"):
+                    from src.access_export import torque_csv_to_access
+
+                    with st.spinner("Creando base de datos Access..."):
+                        body = torque_csv_to_access(body)
+                    ext = "accdb"
+                    content_type = "application/vnd.ms-access"
+                else:
+                    ext = "xlsx" if fmt.startswith("Excel") else "csv"
                 file_name = f"torque_{start}_{end}.{ext}"
             else:
                 ext = "zip"
